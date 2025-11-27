@@ -1,0 +1,77 @@
+name: Build for iOS 9.3.5
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  check-xcode:
+    runs-on: macos-12
+    steps:
+    - name: List available Xcode versions
+      run: ls -la /Applications/ | grep Xcode
+
+    - name: Show macOS version
+      run: sw_vers
+
+    - name: Check available Xcode versions
+      run: |
+        echo "=== Installed Xcode versions ==="
+        ls /Applications/ | grep Xcode || echo "No Xcode apps found"
+        echo ""
+        echo "=== Default Xcode ==="
+        xcodebuild -version || echo "xcodebuild not available"
+        echo ""
+        echo "=== SDK versions ==="
+        xcodebuild -showsdks || echo "Cannot show SDKs"
+        echo ""
+        echo "=== Valid architectures ==="
+        xcodebuild -project HomeButler.xcodeproj -target HomeButler -showBuildSettings | grep VALID_ARCHS || echo "Cannot check"
+
+  try-macos-11:
+    runs-on: macos-11
+    steps:
+    - name: macOS 11 - List Xcode
+      run: |
+        echo "=== macOS 11 Info ==="
+        sw_vers
+        echo ""
+        ls -la /Applications/ | grep Xcode || echo "No Xcode"
+        xcodebuild -version || echo "No xcodebuild"
+        xcodebuild -showsdks || echo "Cannot show SDKs"
+
+  build-attempt:
+    runs-on: macos-12
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Try building with available Xcode
+      run: |
+        echo "=== Attempting build ==="
+        xcodebuild \
+          -project HomeButler.xcodeproj \
+          -scheme HomeButler \
+          -configuration Release \
+          -sdk iphoneos \
+          IPHONEOS_DEPLOYMENT_TARGET=9.3 \
+          ARCHS="armv7 arm64" \
+          VALID_ARCHS="armv7 armv7s arm64" \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          build || echo "Build failed as expected"
+
+    - name: Find and package app
+      run: |
+        find ~/Library/Developer/Xcode/DerivedData -name "HomeButler.app" -type d -exec cp -R {} . \;
+        mkdir -p Payload
+        cp -R HomeButler.app Payload/
+        zip -r HomeButler-iOS9.ipa Payload
+
+    - name: Upload IPA
+      uses: actions/upload-artifact@v2
+      with:
+        name: HomeButler-iOS9
+        path: HomeButler-iOS9.ipa

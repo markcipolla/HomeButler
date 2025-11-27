@@ -76,6 +76,11 @@
 @property (nonatomic, strong) UIView *dropPlaceholderView;
 @property (nonatomic, strong) CAShapeLayer *dropPlaceholderBorder;
 
+// Connection status overlay
+@property (nonatomic, strong) UIView *connectionOverlay;
+@property (nonatomic, strong) UIActivityIndicatorView *connectionSpinner;
+@property (nonatomic, strong) UILabel *connectionLabel;
+
 @end
 
 static const CGFloat kBottomNavHeight = 90.0;
@@ -115,7 +120,16 @@ static const CGFloat kRoomTileSize = 90.0;
                                                  name:@"HBRoomDidChangeNotification"
                                                object:nil];
 
-    // Start entity refresh timer (every 60 seconds)
+    // Listen for connection status changes
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(connectionStatusChanged:)
+                                                 name:HAAPIClientConnectionStatusChangedNotification
+                                               object:nil];
+
+    // Setup connection overlay (hidden initially)
+    [self setupConnectionOverlay];
+
+    // Start entity refresh timer (every 1 second)
     [self startEntityRefreshTimer];
 }
 
@@ -133,7 +147,7 @@ static const CGFloat kRoomTileSize = 90.0;
 
 - (void)startEntityRefreshTimer {
     [self.entityRefreshTimer invalidate];
-    self.entityRefreshTimer = [NSTimer scheduledTimerWithTimeInterval:60.0
+    self.entityRefreshTimer = [NSTimer scheduledTimerWithTimeInterval:1.0
                                                                target:self
                                                              selector:@selector(entityRefreshTimerFired)
                                                              userInfo:nil
@@ -147,6 +161,58 @@ static const CGFloat kRoomTileSize = 90.0;
 
 - (void)roomDidChange:(NSNotification *)notification {
     [self refreshRoomsAndEntities];
+}
+
+- (void)connectionStatusChanged:(NSNotification *)notification {
+    BOOL connected = [notification.userInfo[@"connected"] boolValue];
+    if (connected) {
+        [self hideConnectionOverlay];
+    } else {
+        [self showConnectionOverlay];
+    }
+}
+
+- (void)setupConnectionOverlay {
+    self.connectionOverlay = [[UIView alloc] initWithFrame:self.view.bounds];
+    self.connectionOverlay.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.7];
+    self.connectionOverlay.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    self.connectionOverlay.hidden = YES;
+
+    // Spinner
+    self.connectionSpinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    self.connectionSpinner.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.connectionOverlay addSubview:self.connectionSpinner];
+
+    // Label
+    self.connectionLabel = [[UILabel alloc] init];
+    self.connectionLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    self.connectionLabel.text = @"Connecting to Home Assistant...";
+    self.connectionLabel.textColor = [UIColor whiteColor];
+    self.connectionLabel.font = [UIFont systemFontOfSize:18];
+    self.connectionLabel.textAlignment = NSTextAlignmentCenter;
+    [self.connectionOverlay addSubview:self.connectionLabel];
+
+    [self.view addSubview:self.connectionOverlay];
+
+    [NSLayoutConstraint activateConstraints:@[
+        [self.connectionSpinner.centerXAnchor constraintEqualToAnchor:self.connectionOverlay.centerXAnchor],
+        [self.connectionSpinner.centerYAnchor constraintEqualToAnchor:self.connectionOverlay.centerYAnchor constant:-20],
+        [self.connectionLabel.centerXAnchor constraintEqualToAnchor:self.connectionOverlay.centerXAnchor],
+        [self.connectionLabel.topAnchor constraintEqualToAnchor:self.connectionSpinner.bottomAnchor constant:20],
+        [self.connectionLabel.leadingAnchor constraintEqualToAnchor:self.connectionOverlay.leadingAnchor constant:20],
+        [self.connectionLabel.trailingAnchor constraintEqualToAnchor:self.connectionOverlay.trailingAnchor constant:-20]
+    ]];
+}
+
+- (void)showConnectionOverlay {
+    self.connectionOverlay.hidden = NO;
+    [self.connectionSpinner startAnimating];
+    [self.view bringSubviewToFront:self.connectionOverlay];
+}
+
+- (void)hideConnectionOverlay {
+    self.connectionOverlay.hidden = YES;
+    [self.connectionSpinner stopAnimating];
 }
 
 - (void)loadHomeSensorIds {
@@ -1446,10 +1512,13 @@ static const CGFloat kRoomTileSize = 90.0;
 
     HBThemeManager *theme = [HBThemeManager sharedManager];
 
-    // Temperature from attributes
+    // Temperature from attributes (safely handle NSNumber or NSString)
     NSDictionary *attrs = self.weatherEntity.attributes;
-    NSNumber *temp = attrs[@"temperature"];
-    NSString *tempStr = temp ? [NSString stringWithFormat:@"%.0f°", [temp floatValue]] : @"--°";
+    id tempVal = attrs[@"temperature"];
+    NSString *tempStr = @"--°";
+    if ([tempVal isKindOfClass:[NSNumber class]] || [tempVal isKindOfClass:[NSString class]]) {
+        tempStr = [NSString stringWithFormat:@"%.0f°", [tempVal floatValue]];
+    }
 
     // Update landscape card
     self.currentTempLabel.text = tempStr;
@@ -1473,18 +1542,36 @@ static const CGFloat kRoomTileSize = 90.0;
     self.portraitWeatherIcon.iconColor = [theme textColor];
 
     // Get min/max and rain from today's forecast
-    if (self.forecastData.count > 0) {
+    if (self.forecastData.count > 0 && [self.forecastData[0] isKindOfClass:[NSDictionary class]]) {
         NSDictionary *today = self.forecastData[0];
         NSLog(@"[Weather] Today's forecast data: %@", today);
-        NSNumber *highTemp = today[@"temperature"];
-        NSNumber *lowTemp = today[@"templow"];
-        NSNumber *precipitation = today[@"precipitation"];
-        NSLog(@"[Weather] Current: %@, High: %@, Low: %@", temp, highTemp, lowTemp);
+
+        // Safely extract numeric values
+        id highTempVal = today[@"temperature"];
+        id lowTempVal = today[@"templow"];
+        id precipVal = today[@"precipitation"];
+
+        CGFloat highTemp = 0, lowTemp = 0, precipitation = 0;
+        BOOL hasHighTemp = NO, hasLowTemp = NO;
+
+        if ([highTempVal isKindOfClass:[NSNumber class]] || [highTempVal isKindOfClass:[NSString class]]) {
+            highTemp = [highTempVal floatValue];
+            hasHighTemp = YES;
+        }
+        if ([lowTempVal isKindOfClass:[NSNumber class]] || [lowTempVal isKindOfClass:[NSString class]]) {
+            lowTemp = [lowTempVal floatValue];
+            hasLowTemp = YES;
+        }
+        if ([precipVal isKindOfClass:[NSNumber class]] || [precipVal isKindOfClass:[NSString class]]) {
+            precipitation = [precipVal floatValue];
+        }
+
+        NSLog(@"[Weather] High: %.0f, Low: %.0f", highTemp, lowTemp);
 
         // Create attributed string for min/max: [grey min] [white max]
-        if (highTemp && lowTemp) {
-            NSString *minStr = [NSString stringWithFormat:@"%.0f°", [lowTemp floatValue]];
-            NSString *maxStr = [NSString stringWithFormat:@"  %.0f°", [highTemp floatValue]];
+        if (hasHighTemp && hasLowTemp) {
+            NSString *minStr = [NSString stringWithFormat:@"%.0f°", lowTemp];
+            NSString *maxStr = [NSString stringWithFormat:@"  %.0f°", highTemp];
 
             NSMutableAttributedString *minMaxStr = [[NSMutableAttributedString alloc] init];
 
@@ -1506,8 +1593,8 @@ static const CGFloat kRoomTileSize = 90.0;
         }
 
         // Rain amount
-        if (precipitation && [precipitation floatValue] > 0) {
-            self.currentRainLabel.text = [NSString stringWithFormat:@"%.1fmm rain", [precipitation floatValue]];
+        if (precipitation > 0) {
+            self.currentRainLabel.text = [NSString stringWithFormat:@"%.1fmm rain", precipitation];
         } else {
             self.currentRainLabel.text = @"";
         }
@@ -1629,6 +1716,16 @@ static const CGFloat kRoomTileSize = 90.0;
 }
 
 - (void)updateForecastView {
+    // Safety checks
+    if (!self.forecastScrollView) {
+        NSLog(@"[Dashboard] updateForecastView called but forecastScrollView is nil");
+        return;
+    }
+    if (!self.forecastData || ![self.forecastData isKindOfClass:[NSArray class]]) {
+        NSLog(@"[Dashboard] updateForecastView called but forecastData is nil or not an array");
+        return;
+    }
+
     HBThemeManager *theme = [HBThemeManager sharedManager];
     BOOL isPortrait = [self isPortraitOrientation];
 
@@ -1656,7 +1753,11 @@ static const CGFloat kRoomTileSize = 90.0;
     CGFloat itemHeight = availableHeight / rows;
 
     for (NSInteger i = 0; i < count; i++) {
-        NSDictionary *day = self.forecastData[i];
+        id dayObj = self.forecastData[i];
+        if (![dayObj isKindOfClass:[NSDictionary class]]) {
+            continue;
+        }
+        NSDictionary *day = (NSDictionary *)dayObj;
 
         // Calculate position in grid
         NSInteger row = i / columns;
@@ -1692,17 +1793,37 @@ static const CGFloat kRoomTileSize = 90.0;
         yOffset += dayLabelHeight;
 
         // Min/Max temps on one line: [grey min] [white max]
-        NSNumber *highTemp = day[@"temperature"];
-        NSNumber *lowTemp = day[@"templow"];
+        // Safely extract numeric values (API may return NSNumber or NSString)
+        id highTempVal = day[@"temperature"];
+        id lowTempVal = day[@"templow"];
+        CGFloat highTemp = 0, lowTemp = 0;
+        BOOL hasHighTemp = NO, hasLowTemp = NO;
+
+        if ([highTempVal isKindOfClass:[NSNumber class]]) {
+            highTemp = [highTempVal floatValue];
+            hasHighTemp = YES;
+        } else if ([highTempVal isKindOfClass:[NSString class]]) {
+            highTemp = [highTempVal floatValue];
+            hasHighTemp = YES;
+        }
+
+        if ([lowTempVal isKindOfClass:[NSNumber class]]) {
+            lowTemp = [lowTempVal floatValue];
+            hasLowTemp = YES;
+        } else if ([lowTempVal isKindOfClass:[NSString class]]) {
+            lowTemp = [lowTempVal floatValue];
+            hasLowTemp = YES;
+        }
+
         CGFloat tempLabelHeight = isPortrait ? 16 : 28;
         UILabel *tempLabel = [[UILabel alloc] initWithFrame:CGRectMake(padding, yOffset, itemWidth - padding * 2, tempLabelHeight)];
         tempLabel.textAlignment = NSTextAlignmentLeft;
         tempLabel.adjustsFontSizeToFitWidth = YES;
         tempLabel.minimumScaleFactor = 0.7;
 
-        if (lowTemp && highTemp) {
-            NSString *minStr = [NSString stringWithFormat:@"%.0f°", [lowTemp floatValue]];
-            NSString *maxStr = [NSString stringWithFormat:@" %.0f°", [highTemp floatValue]];
+        if (hasLowTemp && hasHighTemp) {
+            NSString *minStr = [NSString stringWithFormat:@"%.0f°", lowTemp];
+            NSString *maxStr = [NSString stringWithFormat:@" %.0f°", highTemp];
 
             NSMutableAttributedString *tempAttrStr = [[NSMutableAttributedString alloc] init];
 
@@ -1721,8 +1842,8 @@ static const CGFloat kRoomTileSize = 90.0;
             [tempAttrStr appendAttributedString:[[NSAttributedString alloc] initWithString:maxStr attributes:whiteAttrs]];
 
             tempLabel.attributedText = tempAttrStr;
-        } else if (highTemp) {
-            tempLabel.text = [NSString stringWithFormat:@"%.0f°", [highTemp floatValue]];
+        } else if (hasHighTemp) {
+            tempLabel.text = [NSString stringWithFormat:@"%.0f°", highTemp];
             tempLabel.font = [UIFont boldSystemFontOfSize:tempFontSize];
             tempLabel.textColor = [UIColor whiteColor];
         }
@@ -1744,11 +1865,15 @@ static const CGFloat kRoomTileSize = 90.0;
         yOffset += conditionLabelHeight;
 
         // Rain/precipitation - show in both orientations
-        NSNumber *precipitation = day[@"precipitation"];
-        if (precipitation && [precipitation floatValue] > 0) {
+        id precipVal = day[@"precipitation"];
+        CGFloat precipitation = 0;
+        if ([precipVal isKindOfClass:[NSNumber class]] || [precipVal isKindOfClass:[NSString class]]) {
+            precipitation = [precipVal floatValue];
+        }
+        if (precipitation > 0) {
             CGFloat rainLabelHeight = isPortrait ? 14 : 22;
             UILabel *rainLabel = [[UILabel alloc] initWithFrame:CGRectMake(padding, yOffset, itemWidth - padding * 2, rainLabelHeight)];
-            rainLabel.text = [NSString stringWithFormat:@"%.1fmm", [precipitation floatValue]];
+            rainLabel.text = [NSString stringWithFormat:@"%.1fmm", precipitation];
             rainLabel.font = [UIFont systemFontOfSize:conditionFontSize];
             rainLabel.textColor = [UIColor colorWithRed:0.4 green:0.6 blue:1.0 alpha:1.0];
             rainLabel.textAlignment = NSTextAlignmentLeft;
@@ -1768,6 +1893,10 @@ static const CGFloat kRoomTileSize = 90.0;
 - (NSString *)dayNameFromDateString:(NSString *)dateStr index:(NSInteger)index {
     if (index == 0) return @"Today";
     if (index == 1) return @"Tomorrow";
+
+    if (!dateStr || dateStr.length < 10) {
+        return @"--";
+    }
 
     NSDateFormatter *inputFormatter = [[NSDateFormatter alloc] init];
     inputFormatter.dateFormat = @"yyyy-MM-dd";

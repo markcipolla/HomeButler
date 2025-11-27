@@ -7,12 +7,16 @@ NS_ASSUME_NONNULL_BEGIN
 typedef void (^HACompletionBlock)(BOOL success, id _Nullable result, NSError * _Nullable error);
 typedef void (^HAEntitiesBlock)(NSArray<HAEntity *> * _Nullable entities, NSError * _Nullable error);
 
+// Notification posted when connection status changes
+extern NSString * const HAAPIClientConnectionStatusChangedNotification;
+
 @interface HAAPIClient : NSObject
 
 + (instancetype)sharedClient;
 
 @property (nonatomic, strong, nullable) NSString *baseURL;
 @property (nonatomic, strong, nullable) NSString *accessToken;
+@property (nonatomic, assign, readonly) BOOL isConnected;
 
 - (void)configureWithBaseURL:(NSString *)baseURL accessToken:(NSString *)accessToken;
 - (BOOL)isConfigured;

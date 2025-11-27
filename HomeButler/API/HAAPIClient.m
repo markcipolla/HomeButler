@@ -1,9 +1,12 @@
 #import "HAAPIClient.h"
 #import "HAEntity.h"
 
+NSString * const HAAPIClientConnectionStatusChangedNotification = @"HAAPIClientConnectionStatusChangedNotification";
+
 @interface HAAPIClient () <NSURLSessionDelegate>
 
 @property (nonatomic, strong) NSURLSession *session;
+@property (nonatomic, assign, readwrite) BOOL isConnected;
 
 @end
 
@@ -59,6 +62,17 @@
     return self.baseURL && self.accessToken && self.baseURL.length > 0 && self.accessToken.length > 0;
 }
 
+- (void)setConnectionStatus:(BOOL)connected {
+    if (self.isConnected != connected) {
+        self.isConnected = connected;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:HAAPIClientConnectionStatusChangedNotification
+                                                                object:self
+                                                              userInfo:@{@"connected": @(connected)}];
+        });
+    }
+}
+
 - (void)fetchStatesWithCompletion:(HAEntitiesBlock)completion {
     if (![self isConfigured]) {
         if (completion) {
@@ -77,6 +91,7 @@
 
     NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         if (error) {
+            [self setConnectionStatus:NO];
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (completion) completion(nil, error);
             });
@@ -85,6 +100,7 @@
 
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
         if (httpResponse.statusCode != 200) {
+            [self setConnectionStatus:NO];
             NSError *statusError = [NSError errorWithDomain:@"HAAPIClient" code:httpResponse.statusCode userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"HTTP %ld", (long)httpResponse.statusCode]}];
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (completion) completion(nil, statusError);
@@ -101,6 +117,8 @@
             });
             return;
         }
+
+        [self setConnectionStatus:YES];
 
         NSMutableArray *entities = [NSMutableArray array];
         for (NSDictionary *dict in jsonArray) {

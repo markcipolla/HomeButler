@@ -1,0 +1,460 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0001 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1001; };
+		0002 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1002; };
+		0003 /* HAEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 1003; };
+		0004 /* HBRoom.m in Sources */ = {isa = PBXBuildFile; fileRef = 1004; };
+		0005 /* HAAPIClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 1005; };
+		0006 /* HBThemeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1006; };
+		0007 /* HBDashboardViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1007; };
+		0008 /* HBAddRoomViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1008; };
+		0009 /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1009; };
+		0010 /* HBRoomDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1010; };
+		0011 /* DashboardViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1011; };
+		0012 /* CameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1012; };
+		0013 /* LightControlViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1013; };
+		0014 /* HBLightToggleCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 1014; };
+		0015 /* HBRoomCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 1015; };
+		0016 /* EntityCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 1016; };
+		0019 /* HBIconView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1017; };
+		0020 /* HBActionButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1018; };
+		0017 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2001; };
+		0018 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2002; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		1001 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		1002 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		1002H /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		1003 /* HAEntity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HAEntity.m; sourceTree = "<group>"; };
+		1003H /* HAEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HAEntity.h; sourceTree = "<group>"; };
+		1004 /* HBRoom.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBRoom.m; sourceTree = "<group>"; };
+		1004H /* HBRoom.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBRoom.h; sourceTree = "<group>"; };
+		1005 /* HAAPIClient.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HAAPIClient.m; sourceTree = "<group>"; };
+		1005H /* HAAPIClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HAAPIClient.h; sourceTree = "<group>"; };
+		1006 /* HBThemeManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBThemeManager.m; sourceTree = "<group>"; };
+		1006H /* HBThemeManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBThemeManager.h; sourceTree = "<group>"; };
+		1007 /* HBDashboardViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBDashboardViewController.m; sourceTree = "<group>"; };
+		1007H /* HBDashboardViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBDashboardViewController.h; sourceTree = "<group>"; };
+		1008 /* HBAddRoomViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBAddRoomViewController.m; sourceTree = "<group>"; };
+		1008H /* HBAddRoomViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBAddRoomViewController.h; sourceTree = "<group>"; };
+		1009 /* SettingsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
+		1009H /* SettingsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SettingsViewController.h; sourceTree = "<group>"; };
+		1010 /* HBRoomDetailViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBRoomDetailViewController.m; sourceTree = "<group>"; };
+		1010H /* HBRoomDetailViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBRoomDetailViewController.h; sourceTree = "<group>"; };
+		1011 /* DashboardViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DashboardViewController.m; sourceTree = "<group>"; };
+		1011H /* DashboardViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DashboardViewController.h; sourceTree = "<group>"; };
+		1012 /* CameraViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CameraViewController.m; sourceTree = "<group>"; };
+		1012H /* CameraViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CameraViewController.h; sourceTree = "<group>"; };
+		1013 /* LightControlViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LightControlViewController.m; sourceTree = "<group>"; };
+		1013H /* LightControlViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LightControlViewController.h; sourceTree = "<group>"; };
+		1014 /* HBLightToggleCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBLightToggleCell.m; sourceTree = "<group>"; };
+		1014H /* HBLightToggleCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBLightToggleCell.h; sourceTree = "<group>"; };
+		1015 /* HBRoomCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBRoomCell.m; sourceTree = "<group>"; };
+		1015H /* HBRoomCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBRoomCell.h; sourceTree = "<group>"; };
+		1016 /* EntityCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EntityCell.m; sourceTree = "<group>"; };
+		1016H /* EntityCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityCell.h; sourceTree = "<group>"; };
+		1017 /* HBIconView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBIconView.m; sourceTree = "<group>"; };
+		1017H /* HBIconView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBIconView.h; sourceTree = "<group>"; };
+		1018 /* HBActionButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBActionButton.m; sourceTree = "<group>"; };
+		1018H /* HBActionButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBActionButton.h; sourceTree = "<group>"; };
+		2001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2002 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		2003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3001 /* HomeButler.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HomeButler.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		FRAMEWORKS /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		ROOT = {
+			isa = PBXGroup;
+			children = (
+				SRCGROUP /* HomeButler */,
+				PRODUCTS /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		PRODUCTS /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3001 /* HomeButler.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		SRCGROUP /* HomeButler */ = {
+			isa = PBXGroup;
+			children = (
+				1001 /* main.m */,
+				1002 /* AppDelegate.m */,
+				1002H /* AppDelegate.h */,
+				MODELS /* Models */,
+				API /* API */,
+				THEME /* Theme */,
+				VIEWCONTROLLERS /* ViewControllers */,
+				VIEWS /* Views */,
+				2001 /* Assets.xcassets */,
+				2002 /* LaunchScreen.storyboard */,
+				2003 /* Info.plist */,
+			);
+			path = HomeButler;
+			sourceTree = "<group>";
+		};
+		MODELS /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				1003 /* HAEntity.m */,
+				1003H /* HAEntity.h */,
+				1004 /* HBRoom.m */,
+				1004H /* HBRoom.h */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		API /* API */ = {
+			isa = PBXGroup;
+			children = (
+				1005 /* HAAPIClient.m */,
+				1005H /* HAAPIClient.h */,
+			);
+			path = API;
+			sourceTree = "<group>";
+		};
+		THEME /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				1006 /* HBThemeManager.m */,
+				1006H /* HBThemeManager.h */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		VIEWCONTROLLERS /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				1007 /* HBDashboardViewController.m */,
+				1007H /* HBDashboardViewController.h */,
+				1008 /* HBAddRoomViewController.m */,
+				1008H /* HBAddRoomViewController.h */,
+				1009 /* SettingsViewController.m */,
+				1009H /* SettingsViewController.h */,
+				1010 /* HBRoomDetailViewController.m */,
+				1010H /* HBRoomDetailViewController.h */,
+				1011 /* DashboardViewController.m */,
+				1011H /* DashboardViewController.h */,
+				1012 /* CameraViewController.m */,
+				1012H /* CameraViewController.h */,
+				1013 /* LightControlViewController.m */,
+				1013H /* LightControlViewController.h */,
+			);
+			path = ViewControllers;
+			sourceTree = "<group>";
+		};
+		VIEWS /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1014 /* HBLightToggleCell.m */,
+				1014H /* HBLightToggleCell.h */,
+				1015 /* HBRoomCell.m */,
+				1015H /* HBRoomCell.h */,
+				1016 /* EntityCell.m */,
+				1016H /* EntityCell.h */,
+				1017 /* HBIconView.m */,
+				1017H /* HBIconView.h */,
+				1018 /* HBActionButton.m */,
+				1018H /* HBActionButton.h */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		TARGET /* HomeButler */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = TARGETCONFIGS;
+			buildPhases = (
+				SOURCES /* Sources */,
+				FRAMEWORKS /* Frameworks */,
+				RESOURCES /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HomeButler;
+			productName = HomeButler;
+			productReference = 3001 /* HomeButler.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		PROJECT = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					TARGET = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = PROJECTCONFIGS;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = ROOT;
+			productRefGroup = PRODUCTS /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				TARGET /* HomeButler */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		RESOURCES /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0017 /* Assets.xcassets in Resources */,
+				0018 /* LaunchScreen.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		SOURCES /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0001 /* main.m in Sources */,
+				0002 /* AppDelegate.m in Sources */,
+				0003 /* HAEntity.m in Sources */,
+				0004 /* HBRoom.m in Sources */,
+				0005 /* HAAPIClient.m in Sources */,
+				0006 /* HBThemeManager.m in Sources */,
+				0007 /* HBDashboardViewController.m in Sources */,
+				0008 /* HBAddRoomViewController.m in Sources */,
+				0009 /* SettingsViewController.m in Sources */,
+				0010 /* HBRoomDetailViewController.m in Sources */,
+				0011 /* DashboardViewController.m in Sources */,
+				0012 /* CameraViewController.m in Sources */,
+				0013 /* LightControlViewController.m in Sources */,
+				0014 /* HBLightToggleCell.m in Sources */,
+				0015 /* HBRoomCell.m in Sources */,
+				0016 /* EntityCell.m in Sources */,
+				0019 /* HBIconView.m in Sources */,
+				0020 /* HBActionButton.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		DEBUGPROJECT /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		RELEASEPROJECT /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		DEBUGTARGET /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HomeButler/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.homebutler.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		RELEASETARGET /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HomeButler/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.homebutler.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		PROJECTCONFIGS /* Build configuration list for PBXProject "HomeButler" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DEBUGPROJECT /* Debug */,
+				RELEASEPROJECT /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		TARGETCONFIGS /* Build configuration list for PBXNativeTarget "HomeButler" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DEBUGTARGET /* Debug */,
+				RELEASETARGET /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = PROJECT;
+}

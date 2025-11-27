@@ -1,0 +1,8 @@
+Package: com.homebutler.app
+Name: HomeButler
+Version: 1.0.0
+Architecture: iphoneos-arm
+Description: Home Assistant control app for iPad
+Maintainer: HomeButler
+Author: HomeButler
+Section: Applications

@@ -1,0 +1,29 @@
+# Theos build artifacts
+.theos/
+packages/
+obj/
+Payload/
+*.deb
+*.ipa
+
+# Xcode build artifacts
+build/
+DerivedData/
+*.xcuserstate
+*.xcworkspace
+!*.xcworkspace/contents.xcworkspacedata
+xcuserdata/
+
+# OS files
+.DS_Store
+*.swp
+*~
+
+# IDE
+.idea/
+*.sublime-*
+.vscode/
+
+# Temporary files
+*.log
+*.tmp

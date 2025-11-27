@@ -2,6 +2,8 @@
 
 A native iOS app for controlling Home Assistant, designed for jailbroken devices running iOS 9.3.5+.
 
+https://github.com/user-attachments/assets/7f0fc34f-93f5-4bdb-b7bc-e2405993784f
+
 ![iOS 9.3.5+](https://img.shields.io/badge/iOS-9.3.5+-blue)
 ![Objective-C](https://img.shields.io/badge/language-Objective--C-orange)
 ![Home Assistant](https://img.shields.io/badge/Home%20Assistant-REST%20API-41BDF5)

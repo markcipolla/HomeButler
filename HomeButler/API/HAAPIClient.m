@@ -200,7 +200,9 @@ NSString * const HAAPIClientConnectionStatusChangedNotification = @"HAAPIClientC
 
 - (void)turnOnEntity:(NSString *)entityId completion:(HACompletionBlock)completion {
     NSString *domain = [[entityId componentsSeparatedByString:@"."] firstObject];
-    [self callService:domain service:@"turn_on" entityId:entityId parameters:nil completion:completion];
+    // Buttons use "press" service instead of "turn_on"
+    NSString *service = [domain isEqualToString:@"button"] ? @"press" : @"turn_on";
+    [self callService:domain service:service entityId:entityId parameters:nil completion:completion];
 }
 
 - (void)turnOffEntity:(NSString *)entityId completion:(HACompletionBlock)completion {

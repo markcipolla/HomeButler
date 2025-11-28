@@ -9,7 +9,8 @@ typedef NS_ENUM(NSInteger, EntityFilterType) {
     EntityFilterTypeLights,
     EntityFilterTypeSwitches,
     EntityFilterTypeSensors,
-    EntityFilterTypeCameras
+    EntityFilterTypeCameras,
+    EntityFilterTypeDevices
 };
 
 @interface HBAddRoomViewController () <UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate>
@@ -219,7 +220,7 @@ static NSArray *kRoomIconTypes;
     [self.view addSubview:self.filterScrollView];
 
     self.filterButtons = [NSMutableArray array];
-    NSArray *filterTitles = @[@"All", @"Lights", @"Switches", @"Sensors", @"Cameras"];
+    NSArray *filterTitles = @[@"All", @"Lights", @"Switches", @"Sensors", @"Cameras", @"Devices"];
     CGFloat xOffset = 16;
     CGFloat buttonHeight = 32;
     CGFloat buttonSpacing = 8;
@@ -372,20 +373,15 @@ static NSArray *kRoomIconTypes;
         BOOL passesTypeFilter = NO;
         switch (self.currentFilter) {
             case EntityFilterTypeAll:
-                // Show lights, switches, sensors, cameras, scripts, input_booleans (not unknown types)
-                passesTypeFilter = (entity.entityType == HAEntityTypeLight ||
-                                   entity.entityType == HAEntityTypeSwitch ||
-                                   entity.entityType == HAEntityTypeSensor ||
-                                   entity.entityType == HAEntityTypeBinarySensor ||
-                                   entity.entityType == HAEntityTypeCamera ||
-                                   entity.entityType == HAEntityTypeScript ||
-                                   entity.entityType == HAEntityTypeInputBoolean);
+                // Show all known entity types (not unknown)
+                passesTypeFilter = (entity.entityType != HAEntityTypeUnknown);
                 break;
             case EntityFilterTypeLights:
                 passesTypeFilter = (entity.entityType == HAEntityTypeLight);
                 break;
             case EntityFilterTypeSwitches:
-                passesTypeFilter = (entity.entityType == HAEntityTypeSwitch);
+                passesTypeFilter = (entity.entityType == HAEntityTypeSwitch ||
+                                   entity.entityType == HAEntityTypeInputBoolean);
                 break;
             case EntityFilterTypeSensors:
                 passesTypeFilter = (entity.entityType == HAEntityTypeSensor ||
@@ -393,6 +389,16 @@ static NSArray *kRoomIconTypes;
                 break;
             case EntityFilterTypeCameras:
                 passesTypeFilter = (entity.entityType == HAEntityTypeCamera);
+                break;
+            case EntityFilterTypeDevices:
+                // Vacuums, fans, climate, buttons, numbers, selects, scripts
+                passesTypeFilter = (entity.entityType == HAEntityTypeVacuum ||
+                                   entity.entityType == HAEntityTypeFan ||
+                                   entity.entityType == HAEntityTypeClimate ||
+                                   entity.entityType == HAEntityTypeButton ||
+                                   entity.entityType == HAEntityTypeNumber ||
+                                   entity.entityType == HAEntityTypeSelect ||
+                                   entity.entityType == HAEntityTypeScript);
                 break;
         }
 

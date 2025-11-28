@@ -133,8 +133,8 @@
     BOOL isReadOnly = (entity.entityType == HAEntityTypeSensor || entity.entityType == HAEntityTypeBinarySensor);
     self.isReadOnly = isReadOnly;
 
-    // Check if this is a script (tap to trigger, no on/off state)
-    BOOL isScript = (entity.entityType == HAEntityTypeScript);
+    // Check if this is a script or button (tap to trigger, no on/off state)
+    BOOL isScript = (entity.entityType == HAEntityTypeScript || entity.entityType == HAEntityTypeButton);
     self.isScript = isScript;
 
     // Get all values from entity upfront and cache them

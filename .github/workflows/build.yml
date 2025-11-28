@@ -1,0 +1,88 @@
+name: Build IPA
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Theos
+      run: |
+        # Install dependencies
+        brew install ldid make
+
+        # Clone Theos
+        export THEOS=~/theos
+        git clone --recursive https://github.com/theos/theos.git $THEOS
+
+        # Download iOS SDK (9.3 for compatibility)
+        cd $THEOS/sdks
+        curl -LO https://github.com/theos/sdks/releases/download/master/iPhoneOS9.3.sdk.tar.xz
+        tar -xf iPhoneOS9.3.sdk.tar.xz
+        rm iPhoneOS9.3.sdk.tar.xz
+
+    - name: Build with Theos
+      run: |
+        export THEOS=~/theos
+        export PATH="$THEOS/bin:$PATH"
+
+        # Use GNU make from Homebrew for parallel builds
+        gmake clean
+        gmake FINALPACKAGE=1
+
+    - name: Create IPA
+      run: |
+        # Sign with ldid
+        ldid -S .theos/obj/HomeButler.app/HomeButler
+
+        # Create IPA structure
+        mkdir -p Payload
+        cp -R .theos/obj/HomeButler.app Payload/
+
+        # Copy icons
+        if [ -d "Resources" ]; then
+          cp Resources/*.png Payload/HomeButler.app/ 2>/dev/null || true
+        fi
+
+        # Create IPA
+        zip -r HomeButler.ipa Payload
+
+        # Cleanup
+        rm -rf Payload
+
+    - name: Upload IPA artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: HomeButler-IPA
+        path: HomeButler.ipa
+        retention-days: 30
+
+    - name: Upload dSYM artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: HomeButler-dSYM
+        path: .theos/obj/debug/HomeButler.app.dSYM
+        retention-days: 30
+        if-no-files-found: ignore
+
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          HomeButler.ipa
+        generate_release_notes: true
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

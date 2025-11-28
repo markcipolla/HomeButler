@@ -56,6 +56,18 @@
         return HAEntityTypeScript;
     } else if ([entityId hasPrefix:@"input_boolean."]) {
         return HAEntityTypeInputBoolean;
+    } else if ([entityId hasPrefix:@"vacuum."]) {
+        return HAEntityTypeVacuum;
+    } else if ([entityId hasPrefix:@"button."]) {
+        return HAEntityTypeButton;
+    } else if ([entityId hasPrefix:@"fan."]) {
+        return HAEntityTypeFan;
+    } else if ([entityId hasPrefix:@"climate."]) {
+        return HAEntityTypeClimate;
+    } else if ([entityId hasPrefix:@"number."]) {
+        return HAEntityTypeNumber;
+    } else if ([entityId hasPrefix:@"select."]) {
+        return HAEntityTypeSelect;
     }
     return HAEntityTypeUnknown;
 }
@@ -83,6 +95,18 @@
             return @"▶️";
         case HAEntityTypeInputBoolean:
             return self.isOn ? @"✓" : @"○";
+        case HAEntityTypeVacuum:
+            return @"🧹";
+        case HAEntityTypeButton:
+            return @"⏺";
+        case HAEntityTypeFan:
+            return self.isOn ? @"🌀" : @"○";
+        case HAEntityTypeClimate:
+            return @"🌡";
+        case HAEntityTypeNumber:
+            return @"#";
+        case HAEntityTypeSelect:
+            return @"☰";
         default:
             return @"❓";
     }

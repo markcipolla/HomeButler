@@ -9,7 +9,13 @@ typedef NS_ENUM(NSInteger, HAEntityType) {
     HAEntityTypeCamera,
     HAEntityTypeBinarySensor,
     HAEntityTypeScript,
-    HAEntityTypeInputBoolean
+    HAEntityTypeInputBoolean,
+    HAEntityTypeVacuum,
+    HAEntityTypeButton,
+    HAEntityTypeFan,
+    HAEntityTypeClimate,
+    HAEntityTypeNumber,
+    HAEntityTypeSelect
 };
 
 @interface HAEntity : NSObject

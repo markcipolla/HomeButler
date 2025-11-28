@@ -81,6 +81,14 @@
 @property (nonatomic, strong) UIActivityIndicatorView *connectionSpinner;
 @property (nonatomic, strong) UILabel *connectionLabel;
 
+// Bin button for delete during drag
+@property (nonatomic, strong) UIButton *binButton;
+@property (nonatomic, strong) UIButton *homeBinButton;
+@property (nonatomic, assign) BOOL isDraggingOverBin;
+@property (nonatomic, assign) BOOL isHomeDraggingOverBin;
+@property (nonatomic, strong) NSIndexPath *draggingRoomEntityIndexPath;
+@property (nonatomic, assign) BOOL isDraggingEntity; // Prevents UI refresh during drag
+
 @end
 
 static const CGFloat kBottomNavHeight = 90.0;
@@ -402,6 +410,19 @@ static const CGFloat kRoomTileSize = 90.0;
     [self.editRoomButton addTarget:self action:@selector(editRoomTapped) forControlEvents:UIControlEventTouchUpInside];
     [self.contentView addSubview:self.editRoomButton];
 
+    // Bin button (left of Edit, hidden initially, shows during drag)
+    self.binButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.binButton.translatesAutoresizingMaskIntoConstraints = NO;
+    self.binButton.backgroundColor = [[HBThemeManager sharedManager] cardBackgroundColor];
+    self.binButton.layer.cornerRadius = 25;
+    self.binButton.layer.borderWidth = 3;
+    self.binButton.layer.borderColor = [UIColor clearColor].CGColor;
+    [self.binButton setTitle:@"🗑" forState:UIControlStateNormal];
+    self.binButton.titleLabel.font = [UIFont systemFontOfSize:24];
+    self.binButton.alpha = 0;
+    self.binButton.hidden = YES;
+    [self.contentView addSubview:self.binButton];
+
     // Entities collection view - dynamic columns with equal spacing (12pt)
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     layout.minimumInteritemSpacing = 12;
@@ -440,6 +461,12 @@ static const CGFloat kRoomTileSize = 90.0;
         // Edit Room button (top right)
         [self.editRoomButton.trailingAnchor constraintEqualToAnchor:self.contentView.trailingAnchor constant:-12],
         [self.editRoomButton.topAnchor constraintEqualToAnchor:self.contentView.topAnchor constant:32],
+
+        // Bin button (left of Edit)
+        [self.binButton.trailingAnchor constraintEqualToAnchor:self.editRoomButton.leadingAnchor constant:-12],
+        [self.binButton.centerYAnchor constraintEqualToAnchor:self.editRoomButton.centerYAnchor],
+        [self.binButton.widthAnchor constraintEqualToConstant:50],
+        [self.binButton.heightAnchor constraintEqualToConstant:50],
 
         // Entities collection (below buttons)
         [self.entitiesCollectionView.leadingAnchor constraintEqualToAnchor:self.contentView.leadingAnchor],
@@ -526,14 +553,20 @@ static const CGFloat kRoomTileSize = 90.0;
                 if (!entityId) continue;
                 for (HAEntity *entity in allEntities) {
                     if (!entity || !entity.entityId) continue;
-                    // Include lights, switches, sensors, binary sensors, scripts, and input_booleans
+                    // Include all supported entity types except cameras
                     if ([entity.entityId isEqualToString:entityId] &&
                         (entity.entityType == HAEntityTypeLight ||
                          entity.entityType == HAEntityTypeSwitch ||
                          entity.entityType == HAEntityTypeSensor ||
                          entity.entityType == HAEntityTypeBinarySensor ||
                          entity.entityType == HAEntityTypeScript ||
-                         entity.entityType == HAEntityTypeInputBoolean)) {
+                         entity.entityType == HAEntityTypeInputBoolean ||
+                         entity.entityType == HAEntityTypeVacuum ||
+                         entity.entityType == HAEntityTypeButton ||
+                         entity.entityType == HAEntityTypeFan ||
+                         entity.entityType == HAEntityTypeClimate ||
+                         entity.entityType == HAEntityTypeNumber ||
+                         entity.entityType == HAEntityTypeSelect)) {
                         [lights addObject:entity];
                         break;
                     }
@@ -545,8 +578,11 @@ static const CGFloat kRoomTileSize = 90.0;
     }
 
     [self updateAllOnOffButtonStates];
-    NSLog(@"[Dashboard] About to reload collection view");
-    [self.entitiesCollectionView reloadData];
+    // Skip reload if dragging to prevent flickering
+    if (!self.isDraggingEntity) {
+        NSLog(@"[Dashboard] About to reload collection view");
+        [self.entitiesCollectionView reloadData];
+    }
     NSLog(@"[Dashboard] updateSelectedRoomDisplay done");
 }
 
@@ -992,6 +1028,18 @@ static const CGFloat kRoomTileSize = 90.0;
         self.editHomeSensorsButton.translatesAutoresizingMaskIntoConstraints = YES;
         [self.editHomeSensorsButton addTarget:self action:@selector(editHomeSensorsTapped) forControlEvents:UIControlEventTouchUpInside];
         [self.sensorsPanel addSubview:self.editHomeSensorsButton];
+
+        // Home Bin button (left of Edit, hidden initially)
+        self.homeBinButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        self.homeBinButton.backgroundColor = [[HBThemeManager sharedManager] cardBackgroundColor];
+        self.homeBinButton.layer.cornerRadius = 25;
+        self.homeBinButton.layer.borderWidth = 3;
+        self.homeBinButton.layer.borderColor = [UIColor clearColor].CGColor;
+        [self.homeBinButton setTitle:@"🗑" forState:UIControlStateNormal];
+        self.homeBinButton.titleLabel.font = [UIFont systemFontOfSize:24];
+        self.homeBinButton.alpha = 0;
+        self.homeBinButton.hidden = YES;
+        [self.sensorsPanel addSubview:self.homeBinButton];
     }
 
     // Update frame for orientation change
@@ -1004,9 +1052,14 @@ static const CGFloat kRoomTileSize = 90.0;
 
     // Update edit button position (depends on panel width)
     self.editHomeSensorsButton.frame = CGRectMake(panelWidth - spacing - 50, 0, 50, 50);
+    // Update home bin button position (left of edit button)
+    self.homeBinButton.frame = CGRectMake(panelWidth - spacing - 50 - spacing - 50, 0, 50, 50);
 
     self.sensorsPanel.hidden = NO;
-    [self updateSensorsPanel];
+    // Skip sensor panel update if dragging to prevent flickering
+    if (!self.isDraggingEntity) {
+        [self updateSensorsPanel];
+    }
     [self updateHomeAllOnOffButtonStates];
 }
 
@@ -1142,15 +1195,11 @@ static const CGFloat kRoomTileSize = 90.0;
 - (void)showEntityPicker {
     HBThemeManager *theme = [HBThemeManager sharedManager];
 
-    // Get all displayable entities (sensors, binary sensors, switches, lights, scripts, input_booleans)
+    // Get all displayable entities (all known types except cameras and unknown)
     NSMutableArray<HAEntity *> *allDisplayableEntities = [NSMutableArray array];
     for (HAEntity *entity in self.allEntities) {
-        if (entity.entityType == HAEntityTypeSensor ||
-            entity.entityType == HAEntityTypeBinarySensor ||
-            entity.entityType == HAEntityTypeSwitch ||
-            entity.entityType == HAEntityTypeLight ||
-            entity.entityType == HAEntityTypeScript ||
-            entity.entityType == HAEntityTypeInputBoolean) {
+        if (entity.entityType != HAEntityTypeUnknown &&
+            entity.entityType != HAEntityTypeCamera) {
             [allDisplayableEntities addObject:entity];
         }
     }
@@ -2178,46 +2227,136 @@ static const CGFloat kRoomTileSize = 90.0;
 #pragma mark - Room Entity Reordering
 
 - (void)handleRoomEntityLongPress:(UILongPressGestureRecognizer *)gesture {
-    CGPoint location = [gesture locationInView:self.entitiesCollectionView];
+    CGPoint locationInCollection = [gesture locationInView:self.entitiesCollectionView];
+    CGPoint locationInContentView = [gesture locationInView:self.contentView];
 
     switch (gesture.state) {
         case UIGestureRecognizerStateBegan: {
-            NSIndexPath *indexPath = [self.entitiesCollectionView indexPathForItemAtPoint:location];
+            NSIndexPath *indexPath = [self.entitiesCollectionView indexPathForItemAtPoint:locationInCollection];
             if (indexPath) {
-                [self.entitiesCollectionView beginInteractiveMovementForItemAtIndexPath:indexPath];
-                // Add visual feedback - scale up the cell slightly
+                self.isDraggingEntity = YES; // Prevent UI refresh during drag
+                self.draggingRoomEntityIndexPath = indexPath;
+                self.draggedIndexPath = indexPath;
+
+                // Create snapshot of the cell for dragging
                 UICollectionViewCell *cell = [self.entitiesCollectionView cellForItemAtIndexPath:indexPath];
-                [UIView animateWithDuration:0.2 animations:^{
-                    cell.transform = CGAffineTransformMakeScale(1.05, 1.05);
-                    cell.alpha = 0.9;
-                }];
+                if (cell) {
+                    // Create snapshot view
+                    self.draggedCellSnapshot = [cell snapshotViewAfterScreenUpdates:YES];
+                    self.draggedCellSnapshot.frame = [self.contentView convertRect:cell.frame fromView:self.entitiesCollectionView];
+                    self.draggedCellSnapshot.alpha = 0.9;
+                    self.draggedCellSnapshot.layer.shadowColor = [UIColor blackColor].CGColor;
+                    self.draggedCellSnapshot.layer.shadowOffset = CGSizeMake(0, 4);
+                    self.draggedCellSnapshot.layer.shadowRadius = 8;
+                    self.draggedCellSnapshot.layer.shadowOpacity = 0.3;
+                    [self.contentView addSubview:self.draggedCellSnapshot];
+
+                    // Hide original cell
+                    cell.hidden = YES;
+
+                    // Animate snapshot lift
+                    [UIView animateWithDuration:0.2 animations:^{
+                        self.draggedCellSnapshot.transform = CGAffineTransformMakeScale(1.05, 1.05);
+                    }];
+                }
+                // Show bin button
+                [self showBinButton];
             }
             break;
         }
-        case UIGestureRecognizerStateChanged:
-            [self.entitiesCollectionView updateInteractiveMovementTargetPosition:location];
+        case UIGestureRecognizerStateChanged: {
+            if (self.draggedCellSnapshot) {
+                // Move snapshot to follow finger
+                self.draggedCellSnapshot.center = locationInContentView;
+
+                // Check if dragging over bin
+                BOOL overBin = CGRectContainsPoint(self.binButton.frame, locationInContentView);
+                [self updateBinButtonHighlight:overBin];
+
+                // Update target position for reordering within collection
+                if (!overBin) {
+                    NSIndexPath *targetIndexPath = [self.entitiesCollectionView indexPathForItemAtPoint:locationInCollection];
+                    if (targetIndexPath && ![targetIndexPath isEqual:self.draggedIndexPath]) {
+                        // Move item in collection view
+                        [self.entitiesCollectionView moveItemAtIndexPath:self.draggedIndexPath toIndexPath:targetIndexPath];
+
+                        // Update data model
+                        NSMutableArray *mutableLights = [self.selectedRoomLights mutableCopy];
+                        HAEntity *movedEntity = mutableLights[self.draggedIndexPath.item];
+                        [mutableLights removeObjectAtIndex:self.draggedIndexPath.item];
+                        [mutableLights insertObject:movedEntity atIndex:targetIndexPath.item];
+                        self.selectedRoomLights = [mutableLights copy];
+
+                        self.draggedIndexPath = targetIndexPath;
+                    }
+                }
+            }
             break;
+        }
         case UIGestureRecognizerStateEnded: {
-            [self.entitiesCollectionView endInteractiveMovement];
-            // Reset all cell transforms
-            for (UICollectionViewCell *cell in self.entitiesCollectionView.visibleCells) {
+            BOOL droppedOnBin = CGRectContainsPoint(self.binButton.frame, locationInContentView);
+
+            if (droppedOnBin && self.draggingRoomEntityIndexPath) {
+                // Remove snapshot with animation
                 [UIView animateWithDuration:0.2 animations:^{
-                    cell.transform = CGAffineTransformIdentity;
-                    cell.alpha = 1.0;
+                    self.draggedCellSnapshot.alpha = 0;
+                    self.draggedCellSnapshot.transform = CGAffineTransformMakeScale(0.5, 0.5);
+                } completion:^(BOOL finished) {
+                    [self.draggedCellSnapshot removeFromSuperview];
+                    self.draggedCellSnapshot = nil;
                 }];
+                // Delete the entity (use current draggedIndexPath which may have moved)
+                [self deleteRoomEntityAtIndexPath:self.draggedIndexPath];
+            } else {
+                // Animate snapshot back to cell position and remove
+                UICollectionViewCell *cell = [self.entitiesCollectionView cellForItemAtIndexPath:self.draggedIndexPath];
+                CGRect targetFrame = cell ? [self.contentView convertRect:cell.frame fromView:self.entitiesCollectionView] : self.draggedCellSnapshot.frame;
+
+                [UIView animateWithDuration:0.2 animations:^{
+                    self.draggedCellSnapshot.frame = targetFrame;
+                    self.draggedCellSnapshot.transform = CGAffineTransformIdentity;
+                } completion:^(BOOL finished) {
+                    [self.draggedCellSnapshot removeFromSuperview];
+                    self.draggedCellSnapshot = nil;
+                    // Show the cell again
+                    if (cell) cell.hidden = NO;
+                }];
+
+                // Save the new order
+                NSMutableArray *newEntityIds = [NSMutableArray array];
+                for (HAEntity *entity in self.selectedRoomLights) {
+                    [newEntityIds addObject:entity.entityId];
+                }
+                self.selectedRoom.entityIds = newEntityIds;
+                [[HBRoomManager sharedManager] updateRoom:self.selectedRoom];
             }
+
+            // Hide bin button and allow UI refresh again
+            [self hideBinButton];
+            self.isDraggingEntity = NO;
+            self.draggingRoomEntityIndexPath = nil;
+            self.draggedIndexPath = nil;
             break;
         }
-        default:
-            [self.entitiesCollectionView cancelInteractiveMovement];
-            // Reset all cell transforms
-            for (UICollectionViewCell *cell in self.entitiesCollectionView.visibleCells) {
+        default: {
+            // Cancel - animate snapshot back
+            if (self.draggedCellSnapshot) {
+                UICollectionViewCell *cell = [self.entitiesCollectionView cellForItemAtIndexPath:self.draggedIndexPath];
                 [UIView animateWithDuration:0.2 animations:^{
-                    cell.transform = CGAffineTransformIdentity;
-                    cell.alpha = 1.0;
+                    self.draggedCellSnapshot.alpha = 0;
+                } completion:^(BOOL finished) {
+                    [self.draggedCellSnapshot removeFromSuperview];
+                    self.draggedCellSnapshot = nil;
+                    if (cell) cell.hidden = NO;
                 }];
             }
+            // Hide bin button and allow UI refresh again
+            [self hideBinButton];
+            self.isDraggingEntity = NO;
+            self.draggingRoomEntityIndexPath = nil;
+            self.draggedIndexPath = nil;
             break;
+        }
     }
 }
 
@@ -2250,6 +2389,64 @@ static const CGFloat kRoomTileSize = 90.0;
     NSLog(@"[Dashboard] Reordered room entities: %@", newEntityIds);
 }
 
+#pragma mark - Bin Button for Room Entity Deletion
+
+- (void)showBinButton {
+    self.binButton.hidden = NO;
+    self.isDraggingOverBin = NO;
+    self.binButton.layer.borderColor = [UIColor clearColor].CGColor;
+    [UIView animateWithDuration:0.2 animations:^{
+        self.binButton.alpha = 1.0;
+    }];
+}
+
+- (void)hideBinButton {
+    [UIView animateWithDuration:0.2 animations:^{
+        self.binButton.alpha = 0;
+    } completion:^(BOOL finished) {
+        self.binButton.hidden = YES;
+        self.binButton.layer.borderColor = [UIColor clearColor].CGColor;
+    }];
+}
+
+- (void)updateBinButtonHighlight:(BOOL)isOver {
+    if (isOver != self.isDraggingOverBin) {
+        self.isDraggingOverBin = isOver;
+        HBThemeManager *theme = [HBThemeManager sharedManager];
+        UIColor *borderColor = isOver ? [UIColor redColor] : [UIColor clearColor];
+        UIColor *bgColor = isOver ? [[UIColor redColor] colorWithAlphaComponent:0.2] : [theme cardBackgroundColor];
+        [UIView animateWithDuration:0.15 animations:^{
+            self.binButton.layer.borderColor = borderColor.CGColor;
+            self.binButton.backgroundColor = bgColor;
+        }];
+    }
+}
+
+- (void)deleteRoomEntityAtIndexPath:(NSIndexPath *)indexPath {
+    if (!self.selectedRoom || indexPath.item >= self.selectedRoomLights.count) return;
+
+    HAEntity *entityToDelete = self.selectedRoomLights[indexPath.item];
+    NSLog(@"[Dashboard] Deleting entity from room: %@", entityToDelete.entityId);
+
+    // Update the local array
+    NSMutableArray *mutableLights = [self.selectedRoomLights mutableCopy];
+    [mutableLights removeObjectAtIndex:indexPath.item];
+    self.selectedRoomLights = [mutableLights copy];
+
+    // Update the room's entityIds
+    NSMutableArray *newEntityIds = [NSMutableArray array];
+    for (HAEntity *entity in self.selectedRoomLights) {
+        [newEntityIds addObject:entity.entityId];
+    }
+    self.selectedRoom.entityIds = newEntityIds;
+    [[HBRoomManager sharedManager] updateRoom:self.selectedRoom];
+
+    // Reload collection view with animation
+    [self.entitiesCollectionView performBatchUpdates:^{
+        [self.entitiesCollectionView deleteItemsAtIndexPaths:@[indexPath]];
+    } completion:nil];
+}
+
 #pragma mark - Home Sensor Reordering
 
 - (void)handleHomeSensorLongPress:(UILongPressGestureRecognizer *)gesture {
@@ -2258,6 +2455,7 @@ static const CGFloat kRoomTileSize = 90.0;
 
     switch (gesture.state) {
         case UIGestureRecognizerStateBegan: {
+            self.isDraggingEntity = YES; // Prevent UI refresh during drag
             self.draggingSensorView = card;
             self.draggingSensorIndex = card.tag;
             self.currentPreviewIndex = card.tag;
@@ -2282,6 +2480,8 @@ static const CGFloat kRoomTileSize = 90.0;
                 card.layer.shadowRadius = 8;
                 card.layer.shadowOpacity = 0.3;
             }];
+            // Show home bin button
+            [self showHomeBinButton];
             break;
         }
         case UIGestureRecognizerStateChanged: {
@@ -2297,6 +2497,10 @@ static const CGFloat kRoomTileSize = 90.0;
                     self.currentPreviewIndex = targetIndex;
                     [self updateDropPlaceholderToIndex:targetIndex];
                 }
+
+                // Check if dragging over bin
+                BOOL overBin = CGRectContainsPoint(self.homeBinButton.frame, locationInPanel);
+                [self updateHomeBinButtonHighlight:overBin];
             }
             break;
         }
@@ -2304,13 +2508,20 @@ static const CGFloat kRoomTileSize = 90.0;
             if (!self.draggingSensorView) break;
 
             NSInteger targetIndex = self.currentPreviewIndex;
+            NSInteger sensorIndex = self.draggingSensorIndex;
+
+            // Check if dropped on bin
+            BOOL droppedOnBin = CGRectContainsPoint(self.homeBinButton.frame, locationInPanel);
 
             // Remove placeholder
             [self removeDropPlaceholder];
 
-            // Reorder if needed
-            if (targetIndex != self.draggingSensorIndex && targetIndex >= 0) {
-                [self reorderHomeSensorFromIndex:self.draggingSensorIndex toIndex:targetIndex];
+            if (droppedOnBin) {
+                // Delete the sensor
+                [self deleteHomeSensorAtIndex:sensorIndex];
+            } else if (targetIndex != sensorIndex && targetIndex >= 0) {
+                // Reorder
+                [self reorderHomeSensorFromIndex:sensorIndex toIndex:targetIndex];
             } else {
                 // Animate back to original position
                 [UIView animateWithDuration:0.3 animations:^{
@@ -2321,6 +2532,9 @@ static const CGFloat kRoomTileSize = 90.0;
                 }];
             }
 
+            // Hide home bin button and allow UI refresh again
+            [self hideHomeBinButton];
+            self.isDraggingEntity = NO;
             self.draggingSensorView = nil;
             self.originalCardCenters = nil;
             break;
@@ -2335,6 +2549,9 @@ static const CGFloat kRoomTileSize = 90.0;
                     self.draggingSensorView.alpha = 1.0;
                     self.draggingSensorView.layer.shadowOpacity = 0;
                 }];
+                // Hide home bin button and allow UI refresh again
+                [self hideHomeBinButton];
+                self.isDraggingEntity = NO;
                 self.draggingSensorView = nil;
                 self.originalCardCenters = nil;
             }
@@ -2461,6 +2678,66 @@ static const CGFloat kRoomTileSize = 90.0;
     [self updateSensorsPanel];
 
     NSLog(@"[Dashboard] Reordered home sensors from %ld to %ld", (long)fromIndex, (long)toIndex);
+}
+
+#pragma mark - Home Bin Button for Sensor Deletion
+
+- (void)showHomeBinButton {
+    self.homeBinButton.hidden = NO;
+    self.isHomeDraggingOverBin = NO;
+    self.homeBinButton.layer.borderColor = [UIColor clearColor].CGColor;
+    [UIView animateWithDuration:0.2 animations:^{
+        self.homeBinButton.alpha = 1.0;
+    }];
+}
+
+- (void)hideHomeBinButton {
+    [UIView animateWithDuration:0.2 animations:^{
+        self.homeBinButton.alpha = 0;
+    } completion:^(BOOL finished) {
+        self.homeBinButton.hidden = YES;
+        self.homeBinButton.layer.borderColor = [UIColor clearColor].CGColor;
+    }];
+}
+
+- (void)updateHomeBinButtonHighlight:(BOOL)isOver {
+    if (isOver != self.isHomeDraggingOverBin) {
+        self.isHomeDraggingOverBin = isOver;
+        HBThemeManager *theme = [HBThemeManager sharedManager];
+        UIColor *borderColor = isOver ? [UIColor redColor] : [UIColor clearColor];
+        UIColor *bgColor = isOver ? [[UIColor redColor] colorWithAlphaComponent:0.2] : [theme cardBackgroundColor];
+        [UIView animateWithDuration:0.15 animations:^{
+            self.homeBinButton.layer.borderColor = borderColor.CGColor;
+            self.homeBinButton.backgroundColor = bgColor;
+        }];
+    }
+}
+
+- (void)deleteHomeSensorAtIndex:(NSInteger)index {
+    if (index < 0 || index >= (NSInteger)self.homeSensorIds.count) return;
+
+    NSString *sensorId = self.homeSensorIds[index];
+    NSLog(@"[Dashboard] Deleting home sensor: %@", sensorId);
+
+    // Remove from array
+    [self.homeSensorIds removeObjectAtIndex:index];
+
+    // Save and refresh
+    [self saveHomeSensorIds];
+
+    // Animate removal of the card
+    if (index < (NSInteger)self.sensorCardViews.count) {
+        UIView *cardToRemove = self.sensorCardViews[index];
+        [UIView animateWithDuration:0.3 animations:^{
+            cardToRemove.alpha = 0;
+            cardToRemove.transform = CGAffineTransformMakeScale(0.5, 0.5);
+        } completion:^(BOOL finished) {
+            [cardToRemove removeFromSuperview];
+            [self updateSensorsPanel];
+        }];
+    } else {
+        [self updateSensorsPanel];
+    }
 }
 
 #pragma mark - HBLightToggleCellDelegate

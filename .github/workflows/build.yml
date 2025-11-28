@@ -27,7 +27,9 @@ jobs:
 
         # Download iOS SDK (9.3 for compatibility)
         cd $THEOS/sdks
-        curl -LO https://github.com/theos/sdks/releases/download/master/iPhoneOS9.3.sdk.tar.xz
+        # Get the latest release tag from theos/sdks
+        SDK_TAG=$(curl -s https://api.github.com/repos/theos/sdks/releases/latest | grep '"tag_name"' | cut -d'"' -f4)
+        curl -LO "https://github.com/theos/sdks/releases/download/${SDK_TAG}/iPhoneOS9.3.sdk.tar.xz"
         tar -xf iPhoneOS9.3.sdk.tar.xz
         rm iPhoneOS9.3.sdk.tar.xz
 

@@ -100,8 +100,8 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: HomeButler.ipa
-        tag_name: build-${{ github.run_number }}
-        name: Build #${{ github.run_number }}
+        tag_name: HomeButler.${{ github.run_number }}
+        name: HomeButler.${{ github.run_number }}
         generate_release_notes: true
         draft: false
         prerelease: true

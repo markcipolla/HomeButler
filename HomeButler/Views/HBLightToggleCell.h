@@ -11,6 +11,8 @@
 @optional
 // For scripts - triggers script execution (entity may be nil, use cell.entityId)
 - (void)lightToggleCell:(HBLightToggleCell *)cell didTriggerScript:(HAEntity *)entity;
+// Called when user starts/stops interacting with cell (brightness slider)
+- (void)lightToggleCell:(HBLightToggleCell *)cell didChangeInteractionState:(BOOL)isInteracting;
 @end
 
 @interface HBLightToggleCell : UICollectionViewCell

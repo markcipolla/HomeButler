@@ -2849,4 +2849,10 @@ static const CGFloat kRoomTileSize = 90.0;
     }];
 }
 
+- (void)lightToggleCell:(HBLightToggleCell *)cell didChangeInteractionState:(BOOL)isInteracting {
+    // Pause/resume entity refresh when user is interacting with a cell (brightness slider)
+    self.isDraggingEntity = isInteracting;
+    NSLog(@"[Dashboard] Cell interaction state changed: %@", isInteracting ? @"started" : @"ended");
+}
+
 @end

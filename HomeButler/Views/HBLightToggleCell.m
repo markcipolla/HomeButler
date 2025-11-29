@@ -387,6 +387,11 @@
         self.panStartBrightness = self.cachedIsOn ? MAX(1, self.cachedBrightness) : 1;
         self.lastBrightnessUpdateTime = 0;
         self.lastSentBrightness = -1;
+
+        // Notify delegate that interaction started
+        if (self.delegate && [self.delegate respondsToSelector:@selector(lightToggleCell:didChangeInteractionState:)]) {
+            [self.delegate lightToggleCell:self didChangeInteractionState:YES];
+        }
     } else if (pan.state == UIGestureRecognizerStateChanged) {
         CGFloat currentY = [pan locationInView:self.contentView].y;
         // Moving up increases brightness, moving down decreases
@@ -422,6 +427,11 @@
         }
     } else if (pan.state == UIGestureRecognizerStateEnded || pan.state == UIGestureRecognizerStateCancelled) {
         self.isPanning = NO;
+
+        // Notify delegate that interaction ended
+        if (self.delegate && [self.delegate respondsToSelector:@selector(lightToggleCell:didChangeInteractionState:)]) {
+            [self.delegate lightToggleCell:self didChangeInteractionState:NO];
+        }
 
         // Get final brightness value from display
         NSString *text = self.statusLabel.text;

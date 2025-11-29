@@ -137,6 +137,11 @@ static const CGFloat kRoomTileSize = 90.0;
     // Setup connection overlay (hidden initially)
     [self setupConnectionOverlay];
 
+    // Show connection overlay at startup if API client is not configured or not connected
+    if (![[HAAPIClient sharedClient] isConfigured] || ![[HAAPIClient sharedClient] isConnected]) {
+        [self showConnectionOverlay];
+    }
+
     // Start entity refresh timer (every 1 second)
     [self startEntityRefreshTimer];
 }
@@ -492,7 +497,13 @@ static const CGFloat kRoomTileSize = 90.0;
 
         strongSelf.isLoadingEntities = NO;
 
-        if (!error && entities) {
+        if (error) {
+            NSLog(@"[Dashboard] Failed to load entities: %@", error.localizedDescription);
+            // Connection status notification will show overlay
+            return;
+        }
+
+        if (entities) {
             strongSelf.allEntities = entities;
             [strongSelf.roomsCollectionView reloadData];
             [strongSelf updateSelectedRoomDisplay];

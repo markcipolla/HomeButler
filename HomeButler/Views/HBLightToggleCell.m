@@ -112,6 +112,11 @@
     // Remove play icon if present
     [self.playIconLayer removeFromSuperlayer];
     self.playIconLayer = nil;
+    // Clear any border animations and state
+    [self.contentView.layer removeAnimationForKey:@"flashBorder"];
+    [self.contentView.layer removeAnimationForKey:@"borderColor"];
+    self.contentView.layer.borderWidth = 0;
+    self.contentView.layer.borderColor = [UIColor clearColor].CGColor;
 }
 
 - (void)configureWithEntity:(HAEntity *)entity {

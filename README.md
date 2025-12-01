@@ -18,6 +18,8 @@ https://github.com/user-attachments/assets/7f0fc34f-93f5-4bdb-b7bc-e2405993784f
 - **Sensors**: Display sensor values with units
 - **Drag & Drop**: Reorder entities on the home screen
 - **Dark Theme**: Native dark UI optimized for always-on displays
+- **Screen Dimming**: Auto-dims to black after 30 seconds idle, tap to wake
+- **Battery Reporting**: Reports battery level to Home Assistant for smart plug automation
 
 ## Screenshots
 
@@ -129,6 +131,94 @@ The app uses Home Assistant's REST API:
 | `GET /api/states` | Fetch all entities |
 | `POST /api/services/{domain}/{service}` | Control entities |
 | `POST /api/services/weather/get_forecasts` | Weather data |
+
+## Battery Reporting (Smart Plug Automation)
+
+HomeButler can report battery level to Home Assistant every 60 seconds, allowing you to automate charging with a smart plug to preserve battery health.
+
+### Setup
+
+1. **In HomeButler**: Go to Settings and enable "Battery Reporting"
+
+2. **In Home Assistant**: Create helper entities via Settings → Devices & Services → Helpers:
+   - **Number** helper: Name `iPad Battery Level`, min 0, max 100, unit `%`
+   - **Text** helper: Name `iPad Battery State`
+
+3. **Create the webhook automation** (Settings → Automations → + Create Automation → Edit in YAML):
+
+```yaml
+alias: HomeButler Battery Webhook
+description: ""
+mode: single
+triggers:
+  - trigger: webhook
+    webhook_id: homebutler_battery
+    local_only: true
+conditions: []
+actions:
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.ipad_battery_level
+    data:
+      value: "{{ trigger.json.battery_level }}"
+  - action: input_text.set_value
+    target:
+      entity_id: input_text.ipad_battery_state
+    data:
+      value: "{{ trigger.json.battery_state }}"
+```
+
+4. **Create smart plug automations**:
+
+**Stop charging at 80%:**
+```yaml
+alias: iPad Stop Charging at 80%
+description: ""
+mode: single
+triggers:
+  - trigger: numeric_state
+    entity_id: input_number.ipad_battery_level
+    above: 80
+conditions:
+  - condition: state
+    entity_id: input_text.ipad_battery_state
+    state: "charging"
+actions:
+  - action: switch.turn_off
+    entity_id: switch.ipad_charger
+```
+
+**Start charging at 20%:**
+```yaml
+alias: iPad Start Charging at 20%
+description: ""
+mode: single
+triggers:
+  - trigger: numeric_state
+    entity_id: input_number.ipad_battery_level
+    below: 20
+conditions: []
+actions:
+  - action: switch.turn_on
+    entity_id: switch.ipad_charger
+```
+
+### Webhook Payload
+
+The app sends this JSON to `{your_ha_url}/api/webhook/homebutler_battery`:
+
+```json
+{
+  "battery_level": 75,
+  "battery_state": "charging",
+  "device_name": "iPad",
+  "device_model": "iPad4,1",
+  "ios_version": "9.3.5",
+  "app": "HomeButler"
+}
+```
+
+`battery_state` can be: `charging`, `unplugged`, `full`, or `unknown`.
 
 ## Security Notes
 

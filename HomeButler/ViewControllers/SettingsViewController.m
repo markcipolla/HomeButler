@@ -7,6 +7,7 @@
 
 @property (nonatomic, strong) UITextField *baseURLField;
 @property (nonatomic, strong) UITextField *accessTokenField;
+@property (nonatomic, strong) UISwitch *batteryReportingSwitch;
 @property (nonatomic, strong) UIButton *saveButton;
 @property (nonatomic, strong) UIButton *testConnectionButton;
 @property (nonatomic, strong) UILabel *statusLabel;
@@ -103,6 +104,51 @@
     [self.contentView addSubview:self.accessTokenField];
     yOffset += 60;
 
+    // Battery reporting section
+    UIView *batteryRow = [[UIView alloc] initWithFrame:CGRectMake(padding, yOffset, self.view.bounds.size.width - 2 * padding, 44)];
+    batteryRow.backgroundColor = [theme cardBackgroundColor];
+    batteryRow.layer.cornerRadius = 8;
+    [self.contentView addSubview:batteryRow];
+
+    UILabel *batteryLabel = [[UILabel alloc] initWithFrame:CGRectMake(12, 0, batteryRow.bounds.size.width - 70, 44)];
+    batteryLabel.text = @"Battery Reporting";
+    batteryLabel.font = [UIFont systemFontOfSize:16];
+    batteryLabel.textColor = [theme textColor];
+    [batteryRow addSubview:batteryLabel];
+
+    self.batteryReportingSwitch = [[UISwitch alloc] init];
+    self.batteryReportingSwitch.frame = CGRectMake(batteryRow.bounds.size.width - 60, 7, 51, 31);
+    self.batteryReportingSwitch.onTintColor = [theme accentColor];
+    [batteryRow addSubview:self.batteryReportingSwitch];
+    yOffset += 50;
+
+    UILabel *batteryHintLabel = [[UILabel alloc] initWithFrame:CGRectMake(padding, yOffset, self.view.bounds.size.width - 2 * padding, 36)];
+    batteryHintLabel.text = @"Reports battery level to Home Assistant for smart plug automation. See README for setup.";
+    batteryHintLabel.font = [UIFont systemFontOfSize:12];
+    batteryHintLabel.textColor = [theme secondaryTextColor];
+    batteryHintLabel.numberOfLines = 0;
+    [self.contentView addSubview:batteryHintLabel];
+    yOffset += 40;
+
+    // Debug: Show current battery status
+    [UIDevice currentDevice].batteryMonitoringEnabled = YES;
+    UIDevice *device = [UIDevice currentDevice];
+    float batteryLevel = device.batteryLevel;
+    UIDeviceBatteryState state = device.batteryState;
+    NSString *stateStr = @"unknown";
+    if (state == UIDeviceBatteryStateCharging) stateStr = @"charging";
+    else if (state == UIDeviceBatteryStateFull) stateStr = @"full";
+    else if (state == UIDeviceBatteryStateUnplugged) stateStr = @"unplugged";
+
+    NSInteger percent = (state == UIDeviceBatteryStateFull) ? 100 : (batteryLevel >= 0 ? (NSInteger)(batteryLevel * 100) : -1);
+
+    UILabel *batteryDebugLabel = [[UILabel alloc] initWithFrame:CGRectMake(padding, yOffset, self.view.bounds.size.width - 2 * padding, 20)];
+    batteryDebugLabel.text = [NSString stringWithFormat:@"Battery: %ld%% (raw: %.2f, state: %@)", (long)percent, batteryLevel, stateStr];
+    batteryDebugLabel.font = [UIFont monospacedDigitSystemFontOfSize:12 weight:UIFontWeightRegular];
+    batteryDebugLabel.textColor = [theme secondaryTextColor];
+    [self.contentView addSubview:batteryDebugLabel];
+    yOffset += 30;
+
     self.testConnectionButton = [UIButton buttonWithType:UIButtonTypeSystem];
     self.testConnectionButton.frame = CGRectMake(padding, yOffset, self.view.bounds.size.width - 2 * padding, 44);
     [self.testConnectionButton setTitle:@"Test Connection" forState:UIControlStateNormal];
@@ -146,6 +192,7 @@
     if (client.accessToken) {
         self.accessTokenField.text = client.accessToken;
     }
+    self.batteryReportingSwitch.on = client.batteryReportingEnabled;
 }
 
 - (void)testConnectionTapped {
@@ -193,6 +240,9 @@
     }
 
     [[HAAPIClient sharedClient] configureWithBaseURL:baseURL accessToken:accessToken];
+
+    // Save battery reporting setting
+    [HAAPIClient sharedClient].batteryReportingEnabled = self.batteryReportingSwitch.on;
 
     if (self.isInitialSetup) {
         HBDashboardViewController *dashboardVC = [[HBDashboardViewController alloc] init];

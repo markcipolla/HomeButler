@@ -2,6 +2,7 @@
 #import "HBDashboardViewController.h"
 #import "SettingsViewController.h"
 #import "HBThemeManager.h"
+#import "API/HBBatteryReporter.h"
 
 @interface AppDelegate ()
 
@@ -34,6 +35,9 @@
 
     self.window.rootViewController = rootViewController;
     [self.window makeKeyAndVisible];
+
+    // Start battery reporting (will only POST if webhook URL is configured)
+    [[HBBatteryReporter sharedReporter] startReporting];
 
     return YES;
 }

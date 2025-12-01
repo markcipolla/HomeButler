@@ -32,6 +32,7 @@ NSString * const HAAPIClientConnectionStatusChangedNotification = @"HAAPIClientC
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         _baseURL = [defaults stringForKey:@"HABaseURL"];
         _accessToken = [defaults stringForKey:@"HAAccessToken"];
+        _batteryReportingEnabled = [defaults boolForKey:@"HABatteryReportingEnabled"];
     }
     return self;
 }
@@ -55,6 +56,14 @@ NSString * const HAAPIClientConnectionStatusChangedNotification = @"HAAPIClientC
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:baseURL forKey:@"HABaseURL"];
     [defaults setObject:accessToken forKey:@"HAAccessToken"];
+    [defaults synchronize];
+}
+
+- (void)setBatteryReportingEnabled:(BOOL)batteryReportingEnabled {
+    _batteryReportingEnabled = batteryReportingEnabled;
+
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setBool:batteryReportingEnabled forKey:@"HABatteryReportingEnabled"];
     [defaults synchronize];
 }
 

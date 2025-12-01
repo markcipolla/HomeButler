@@ -16,6 +16,7 @@ extern NSString * const HAAPIClientConnectionStatusChangedNotification;
 
 @property (nonatomic, strong, nullable) NSString *baseURL;
 @property (nonatomic, strong, nullable) NSString *accessToken;
+@property (nonatomic, assign) BOOL batteryReportingEnabled;
 @property (nonatomic, assign, readonly) BOOL isConnected;
 
 - (void)configureWithBaseURL:(NSString *)baseURL accessToken:(NSString *)accessToken;

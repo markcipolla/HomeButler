@@ -81,6 +81,12 @@
 @property (nonatomic, strong) UIActivityIndicatorView *connectionSpinner;
 @property (nonatomic, strong) UILabel *connectionLabel;
 
+// Screen dimming for idle timeout
+@property (nonatomic, strong) NSTimer *idleTimer;
+@property (nonatomic, assign) BOOL isScreenDimmed;
+@property (nonatomic, assign) CGFloat savedBrightness;
+@property (nonatomic, strong) UIView *dimOverlay;
+
 // Bin button for delete during drag
 @property (nonatomic, strong) UIButton *binButton;
 @property (nonatomic, strong) UIButton *homeBinButton;
@@ -144,6 +150,9 @@ static const CGFloat kRoomTileSize = 90.0;
 
     // Start entity refresh timer (every 1 second)
     [self startEntityRefreshTimer];
+
+    // Setup screen dimming on idle
+    [self setupIdleTimer];
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
@@ -170,6 +179,87 @@ static const CGFloat kRoomTileSize = 90.0;
 - (void)entityRefreshTimerFired {
     NSLog(@"[Dashboard] Entity refresh timer fired");
     [self loadEntities];
+}
+
+#pragma mark - Screen Idle Dimming
+
+static const NSTimeInterval kIdleTimeoutSeconds = 30.0;
+
+- (void)setupIdleTimer {
+    self.isScreenDimmed = NO;
+
+    // Start the idle timer
+    [self resetIdleTimer];
+}
+
+- (void)resetIdleTimer {
+    [self.idleTimer invalidate];
+    self.idleTimer = [NSTimer scheduledTimerWithTimeInterval:kIdleTimeoutSeconds
+                                                      target:self
+                                                    selector:@selector(idleTimerFired)
+                                                    userInfo:nil
+                                                     repeats:NO];
+
+    // If screen was dimmed, restore brightness
+    if (self.isScreenDimmed) {
+        [self wakeScreen];
+    }
+}
+
+- (void)idleTimerFired {
+    NSLog(@"[Dashboard] Idle timer fired - dimming screen");
+    [self dimScreen];
+}
+
+- (void)dimScreen {
+    if (self.isScreenDimmed) return;
+
+    self.isScreenDimmed = YES;
+
+    // Create black overlay
+    if (!self.dimOverlay) {
+        self.dimOverlay = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+        self.dimOverlay.backgroundColor = [UIColor blackColor];
+        self.dimOverlay.userInteractionEnabled = YES;
+
+        // Add tap gesture to wake
+        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dimOverlayTapped)];
+        [self.dimOverlay addGestureRecognizer:tap];
+    }
+
+    // Add to window so it covers everything
+    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+    self.dimOverlay.alpha = 0;
+    [window addSubview:self.dimOverlay];
+
+    [UIView animateWithDuration:0.5 animations:^{
+        self.dimOverlay.alpha = 1.0;
+    }];
+
+    NSLog(@"[Dashboard] Screen dimmed with overlay");
+}
+
+- (void)wakeScreen {
+    if (!self.isScreenDimmed) return;
+
+    self.isScreenDimmed = NO;
+
+    [UIView animateWithDuration:0.2 animations:^{
+        self.dimOverlay.alpha = 0;
+    } completion:^(BOOL finished) {
+        [self.dimOverlay removeFromSuperview];
+    }];
+
+    NSLog(@"[Dashboard] Screen woken");
+}
+
+- (void)dimOverlayTapped {
+    [self resetIdleTimer];
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [super touchesBegan:touches withEvent:event];
+    [self resetIdleTimer];
 }
 
 - (void)roomDidChange:(NSNotification *)notification {
@@ -623,6 +713,7 @@ static const CGFloat kRoomTileSize = 90.0;
 #pragma mark - Actions
 
 - (void)homeTapped {
+    [self resetIdleTimer];
     self.isHomeSelected = YES;
     self.selectedRoom = nil;
     [self updateHomeButtonAppearance];
@@ -644,6 +735,7 @@ static const CGFloat kRoomTileSize = 90.0;
 }
 
 - (void)settingsTapped {
+    [self resetIdleTimer];
     SettingsViewController *settingsVC = [[SettingsViewController alloc] init];
     settingsVC.isInitialSetup = NO;
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:settingsVC];
@@ -2216,6 +2308,8 @@ static const CGFloat kRoomTileSize = 90.0;
 #pragma mark - UICollectionViewDelegate
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    [self resetIdleTimer];
+
     if (collectionView == self.roomsCollectionView) {
         NSLog(@"[Dashboard] didSelectItemAtIndexPath (room): %ld", (long)indexPath.item);
 
@@ -2754,6 +2848,9 @@ static const CGFloat kRoomTileSize = 90.0;
 #pragma mark - HBLightToggleCellDelegate
 
 - (void)lightToggleCell:(HBLightToggleCell *)cell didToggleEntity:(HAEntity *)entity toState:(BOOL)on {
+    // Reset idle timer on user interaction
+    [self resetIdleTimer];
+
     // Use entityId from cell - it's always available even if entity was deallocated
     NSString *entityId = cell.entityId;
     NSLog(@"[Dashboard] didToggleEntity called, entityId: %@, toState: %d", entityId, on);
@@ -2798,6 +2895,9 @@ static const CGFloat kRoomTileSize = 90.0;
 }
 
 - (void)lightToggleCell:(HBLightToggleCell *)cell didSetBrightness:(NSInteger)brightness forEntity:(HAEntity *)entity {
+    // Reset idle timer on user interaction
+    [self resetIdleTimer];
+
     // Use entityId from cell - it's always available even if entity was deallocated
     NSString *entityId = cell.entityId;
     if (!entityId) return;

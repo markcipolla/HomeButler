@@ -26,6 +26,10 @@ echo ""
 rm -rf Payload
 unzip -o HomeButler.ipa
 
+# Kill the app if running
+echo "Stopping HomeButler if running..."
+sshpass -p "$IPAD_PASS" ssh $SSH_OPTS root@$IPAD_IP "killall HomeButler 2>/dev/null || true"
+
 # Copy to iPad
 echo "Copying app to iPad..."
 sshpass -p "$IPAD_PASS" scp $SSH_OPTS -r Payload/HomeButler.app root@$IPAD_IP:/Applications/
@@ -34,8 +38,12 @@ sshpass -p "$IPAD_PASS" scp $SSH_OPTS -r Payload/HomeButler.app root@$IPAD_IP:/A
 echo "Setting permissions and refreshing UI cache..."
 sshpass -p "$IPAD_PASS" ssh $SSH_OPTS root@$IPAD_IP "chmod -R 755 /Applications/HomeButler.app && chown -R root:wheel /Applications/HomeButler.app && uicache -p /Applications/HomeButler.app"
 
+# Launch the app
+echo "Launching HomeButler..."
+sshpass -p "$IPAD_PASS" ssh $SSH_OPTS root@$IPAD_IP "open com.homebutler.app || uiopen /Applications/HomeButler.app"
+
 # Cleanup
 rm -rf Payload
 
 echo ""
-echo "Done! HomeButler updated on iPad."
+echo "Done! HomeButler updated and launched on iPad."

@@ -25,6 +25,7 @@
 		0016 /* EntityCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 1016; };
 		0019 /* HBIconView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1017; };
 		0020 /* HBActionButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1018; };
+		0021 /* HBBatteryReporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1019; };
 		0017 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2001; };
 		0018 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2002; };
 /* End PBXBuildFile section */
@@ -65,6 +66,8 @@
 		1017H /* HBIconView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBIconView.h; sourceTree = "<group>"; };
 		1018 /* HBActionButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBActionButton.m; sourceTree = "<group>"; };
 		1018H /* HBActionButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBActionButton.h; sourceTree = "<group>"; };
+		1019 /* HBBatteryReporter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBBatteryReporter.m; sourceTree = "<group>"; };
+		1019H /* HBBatteryReporter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBBatteryReporter.h; sourceTree = "<group>"; };
 		2001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2002 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -132,6 +135,8 @@
 			children = (
 				1005 /* HAAPIClient.m */,
 				1005H /* HAAPIClient.h */,
+				1019 /* HBBatteryReporter.m */,
+				1019H /* HBBatteryReporter.h */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -269,6 +274,7 @@
 				0016 /* EntityCell.m in Sources */,
 				0019 /* HBIconView.m in Sources */,
 				0020 /* HBActionButton.m in Sources */,
+				0021 /* HBBatteryReporter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -11,6 +11,7 @@ HomeButler_FILES = HomeButler/main.m \
 	HomeButler/Models/HAEntity.m \
 	HomeButler/Models/HBRoom.m \
 	HomeButler/API/HAAPIClient.m \
+	HomeButler/API/HBBatteryReporter.m \
 	HomeButler/Theme/HBThemeManager.m \
 	HomeButler/Views/EntityCell.m \
 	HomeButler/Views/HBRoomCell.m \

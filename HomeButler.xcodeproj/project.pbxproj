@@ -26,6 +26,21 @@
 		0019 /* HBIconView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1017; };
 		0020 /* HBActionButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1018; };
 		0021 /* HBBatteryReporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1019; };
+		0022 /* HBPlexItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1020; };
+		0023 /* HBPlexTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 1021; };
+		0024 /* HBPlexStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 1022; };
+		0025 /* HBPlexSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 1023; };
+		0026 /* HBPlexClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 1024; };
+		0027 /* UIViewController+HBRefresh.m in Sources */ = {isa = PBXBuildFile; fileRef = 1026; };
+		0028 /* HBPlexMediaCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 1027; };
+		0029 /* HBPlexRowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1028; };
+		0030 /* HBPlexNowPlayingPill.m in Sources */ = {isa = PBXBuildFile; fileRef = 1029; };
+		0031 /* HBPlexViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1030; };
+		0032 /* HBPlexLibraryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1031; };
+		0033 /* HBPlexShowViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1032; };
+		0034 /* HBPlexDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1033; };
+		0035 /* HBPlexSearchViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1034; };
+		0036 /* HBPlexNowPlayingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1035; };
 		0017 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2001; };
 		0018 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2002; };
 /* End PBXBuildFile section */
@@ -68,6 +83,37 @@
 		1018H /* HBActionButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBActionButton.h; sourceTree = "<group>"; };
 		1019 /* HBBatteryReporter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBBatteryReporter.m; sourceTree = "<group>"; };
 		1019H /* HBBatteryReporter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBBatteryReporter.h; sourceTree = "<group>"; };
+		1020 /* HBPlexItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBPlexItem.m; sourceTree = "<group>"; };
+		1020H /* HBPlexItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBPlexItem.h; sourceTree = "<group>"; };
+		1021 /* HBPlexTarget.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBPlexTarget.m; sourceTree = "<group>"; };
+		1021H /* HBPlexTarget.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBPlexTarget.h; sourceTree = "<group>"; };
+		1022 /* HBPlexStream.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBPlexStream.m; sourceTree = "<group>"; };
+		1022H /* HBPlexStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBPlexStream.h; sourceTree = "<group>"; };
+		1023 /* HBPlexSession.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBPlexSession.m; sourceTree = "<group>"; };
+		1023H /* HBPlexSession.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBPlexSession.h; sourceTree = "<group>"; };
+		1024 /* HBPlexClient.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBPlexClient.m; sourceTree = "<group>"; };
+		1024H /* HBPlexClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBPlexClient.h; sourceTree = "<group>"; };
+		1025H /* HBRefreshable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBRefreshable.h; sourceTree = "<group>"; };
+		1026 /* UIViewController+HBRefresh.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+HBRefresh.m"; sourceTree = "<group>"; };
+		1026H /* UIViewController+HBRefresh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIViewController+HBRefresh.h"; sourceTree = "<group>"; };
+		1027 /* HBPlexMediaCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBPlexMediaCell.m; sourceTree = "<group>"; };
+		1027H /* HBPlexMediaCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBPlexMediaCell.h; sourceTree = "<group>"; };
+		1028 /* HBPlexRowView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBPlexRowView.m; sourceTree = "<group>"; };
+		1028H /* HBPlexRowView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBPlexRowView.h; sourceTree = "<group>"; };
+		1029 /* HBPlexNowPlayingPill.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBPlexNowPlayingPill.m; sourceTree = "<group>"; };
+		1029H /* HBPlexNowPlayingPill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBPlexNowPlayingPill.h; sourceTree = "<group>"; };
+		1030 /* HBPlexViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBPlexViewController.m; sourceTree = "<group>"; };
+		1030H /* HBPlexViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBPlexViewController.h; sourceTree = "<group>"; };
+		1031 /* HBPlexLibraryViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBPlexLibraryViewController.m; sourceTree = "<group>"; };
+		1031H /* HBPlexLibraryViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBPlexLibraryViewController.h; sourceTree = "<group>"; };
+		1032 /* HBPlexShowViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBPlexShowViewController.m; sourceTree = "<group>"; };
+		1032H /* HBPlexShowViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBPlexShowViewController.h; sourceTree = "<group>"; };
+		1033 /* HBPlexDetailViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBPlexDetailViewController.m; sourceTree = "<group>"; };
+		1033H /* HBPlexDetailViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBPlexDetailViewController.h; sourceTree = "<group>"; };
+		1034 /* HBPlexSearchViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBPlexSearchViewController.m; sourceTree = "<group>"; };
+		1034H /* HBPlexSearchViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBPlexSearchViewController.h; sourceTree = "<group>"; };
+		1035 /* HBPlexNowPlayingViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HBPlexNowPlayingViewController.m; sourceTree = "<group>"; };
+		1035H /* HBPlexNowPlayingViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HBPlexNowPlayingViewController.h; sourceTree = "<group>"; };
 		2001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2002 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -109,6 +155,7 @@
 				1002H /* AppDelegate.h */,
 				MODELS /* Models */,
 				API /* API */,
+				HELPERS /* Helpers */,
 				THEME /* Theme */,
 				VIEWCONTROLLERS /* ViewControllers */,
 				VIEWS /* Views */,
@@ -126,6 +173,14 @@
 				1003H /* HAEntity.h */,
 				1004 /* HBRoom.m */,
 				1004H /* HBRoom.h */,
+				1020 /* HBPlexItem.m */,
+				1020H /* HBPlexItem.h */,
+				1021 /* HBPlexTarget.m */,
+				1021H /* HBPlexTarget.h */,
+				1022 /* HBPlexStream.m */,
+				1022H /* HBPlexStream.h */,
+				1023 /* HBPlexSession.m */,
+				1023H /* HBPlexSession.h */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -137,8 +192,20 @@
 				1005H /* HAAPIClient.h */,
 				1019 /* HBBatteryReporter.m */,
 				1019H /* HBBatteryReporter.h */,
+				1024 /* HBPlexClient.m */,
+				1024H /* HBPlexClient.h */,
 			);
 			path = API;
+			sourceTree = "<group>";
+		};
+		HELPERS /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				1025H /* HBRefreshable.h */,
+				1026 /* UIViewController+HBRefresh.m */,
+				1026H /* UIViewController+HBRefresh.h */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		THEME /* Theme */ = {
@@ -167,6 +234,18 @@
 				1012H /* CameraViewController.h */,
 				1013 /* LightControlViewController.m */,
 				1013H /* LightControlViewController.h */,
+				1030 /* HBPlexViewController.m */,
+				1030H /* HBPlexViewController.h */,
+				1031 /* HBPlexLibraryViewController.m */,
+				1031H /* HBPlexLibraryViewController.h */,
+				1032 /* HBPlexShowViewController.m */,
+				1032H /* HBPlexShowViewController.h */,
+				1033 /* HBPlexDetailViewController.m */,
+				1033H /* HBPlexDetailViewController.h */,
+				1034 /* HBPlexSearchViewController.m */,
+				1034H /* HBPlexSearchViewController.h */,
+				1035 /* HBPlexNowPlayingViewController.m */,
+				1035H /* HBPlexNowPlayingViewController.h */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -184,6 +263,12 @@
 				1017H /* HBIconView.h */,
 				1018 /* HBActionButton.m */,
 				1018H /* HBActionButton.h */,
+				1027 /* HBPlexMediaCell.m */,
+				1027H /* HBPlexMediaCell.h */,
+				1028 /* HBPlexRowView.m */,
+				1028H /* HBPlexRowView.h */,
+				1029 /* HBPlexNowPlayingPill.m */,
+				1029H /* HBPlexNowPlayingPill.h */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -275,6 +360,21 @@
 				0019 /* HBIconView.m in Sources */,
 				0020 /* HBActionButton.m in Sources */,
 				0021 /* HBBatteryReporter.m in Sources */,
+				0022 /* HBPlexItem.m in Sources */,
+				0023 /* HBPlexTarget.m in Sources */,
+				0024 /* HBPlexStream.m in Sources */,
+				0025 /* HBPlexSession.m in Sources */,
+				0026 /* HBPlexClient.m in Sources */,
+				0027 /* UIViewController+HBRefresh.m in Sources */,
+				0028 /* HBPlexMediaCell.m in Sources */,
+				0029 /* HBPlexRowView.m in Sources */,
+				0030 /* HBPlexNowPlayingPill.m in Sources */,
+				0031 /* HBPlexViewController.m in Sources */,
+				0032 /* HBPlexLibraryViewController.m in Sources */,
+				0033 /* HBPlexShowViewController.m in Sources */,
+				0034 /* HBPlexDetailViewController.m in Sources */,
+				0035 /* HBPlexSearchViewController.m in Sources */,
+				0036 /* HBPlexNowPlayingViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

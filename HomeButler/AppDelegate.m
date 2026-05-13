@@ -3,6 +3,7 @@
 #import "SettingsViewController.h"
 #import "HBThemeManager.h"
 #import "API/HBBatteryReporter.h"
+#import "API/HBPlexClient.h"
 
 @interface AppDelegate ()
 
@@ -38,6 +39,13 @@
 
     // Start battery reporting (will only POST if webhook URL is configured)
     [[HBBatteryReporter sharedReporter] startReporting];
+
+    // Ensure persistent Plex client identifier exists and warm-init the client.
+    if ([defaults stringForKey:@"PlexClientIdentifier"].length == 0) {
+        [defaults setObject:[[NSUUID UUID] UUIDString] forKey:@"PlexClientIdentifier"];
+        [defaults synchronize];
+    }
+    (void)[HBPlexClient sharedClient];
 
     return YES;
 }

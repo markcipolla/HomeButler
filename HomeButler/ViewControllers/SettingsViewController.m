@@ -2,6 +2,8 @@
 #import "HAAPIClient.h"
 #import "HBDashboardViewController.h"
 #import "HBThemeManager.h"
+#import "HBPlexClient.h"
+#import "HBPlexTarget.h"
 
 @interface SettingsViewController () <UITextFieldDelegate>
 
@@ -13,6 +15,14 @@
 @property (nonatomic, strong) UILabel *statusLabel;
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UIView *contentView;
+
+// Plex
+@property (nonatomic, strong) UISwitch    *plexEnabledSwitch;
+@property (nonatomic, strong) UITextField *plexServerURLField;
+@property (nonatomic, strong) UITextField *plexTokenField;
+@property (nonatomic, strong) UIButton    *plexTargetButton;
+@property (nonatomic, strong) UIButton    *plexTestButton;
+@property (nonatomic, strong) UILabel     *plexStatusLabel;
 
 @end
 
@@ -158,6 +168,86 @@
     [self.contentView addSubview:self.testConnectionButton];
     yOffset += 54;
 
+    // --- Plex section ---
+    UILabel *plexHeader = [[UILabel alloc] initWithFrame:CGRectMake(padding, yOffset, self.view.bounds.size.width - 2 * padding, 28)];
+    plexHeader.text = @"Plex";
+    plexHeader.font = [UIFont boldSystemFontOfSize:18];
+    plexHeader.textColor = [theme textColor];
+    [self.contentView addSubview:plexHeader];
+    yOffset += 36;
+
+    UIView *plexRow = [[UIView alloc] initWithFrame:CGRectMake(padding, yOffset, self.view.bounds.size.width - 2 * padding, 44)];
+    UILabel *plexLbl = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, plexRow.bounds.size.width - 70, 44)];
+    plexLbl.text = @"Enable Plex";
+    plexLbl.font = [UIFont systemFontOfSize:16];
+    plexLbl.textColor = [theme textColor];
+    [plexRow addSubview:plexLbl];
+    self.plexEnabledSwitch = [[UISwitch alloc] init];
+    self.plexEnabledSwitch.frame = CGRectMake(plexRow.bounds.size.width - 51, 6, 51, 31);
+    [plexRow addSubview:self.plexEnabledSwitch];
+    [self.contentView addSubview:plexRow];
+    yOffset += 50;
+
+    UILabel *plexURLLabel = [[UILabel alloc] initWithFrame:CGRectMake(padding, yOffset, self.view.bounds.size.width - 2 * padding, 20)];
+    plexURLLabel.text = @"Server URL";
+    plexURLLabel.font = [UIFont systemFontOfSize:14];
+    plexURLLabel.textColor = [theme secondaryTextColor];
+    [self.contentView addSubview:plexURLLabel];
+    yOffset += 25;
+
+    self.plexServerURLField = [[UITextField alloc] initWithFrame:CGRectMake(padding, yOffset, self.view.bounds.size.width - 2 * padding, 44)];
+    self.plexServerURLField.placeholder = @"http://192.168.1.x:32400";
+    self.plexServerURLField.borderStyle = UITextBorderStyleRoundedRect;
+    self.plexServerURLField.autocapitalizationType = UITextAutocapitalizationTypeNone;
+    self.plexServerURLField.autocorrectionType = UITextAutocorrectionTypeNo;
+    self.plexServerURLField.keyboardType = UIKeyboardTypeURL;
+    self.plexServerURLField.delegate = self;
+    [self.contentView addSubview:self.plexServerURLField];
+    yOffset += 56;
+
+    UILabel *plexTokenLabel = [[UILabel alloc] initWithFrame:CGRectMake(padding, yOffset, self.view.bounds.size.width - 2 * padding, 20)];
+    plexTokenLabel.text = @"Token";
+    plexTokenLabel.font = [UIFont systemFontOfSize:14];
+    plexTokenLabel.textColor = [theme secondaryTextColor];
+    [self.contentView addSubview:plexTokenLabel];
+    yOffset += 25;
+
+    self.plexTokenField = [[UITextField alloc] initWithFrame:CGRectMake(padding, yOffset, self.view.bounds.size.width - 2 * padding, 44)];
+    self.plexTokenField.placeholder = @"X-Plex-Token";
+    self.plexTokenField.borderStyle = UITextBorderStyleRoundedRect;
+    self.plexTokenField.autocapitalizationType = UITextAutocapitalizationTypeNone;
+    self.plexTokenField.autocorrectionType = UITextAutocorrectionTypeNo;
+    self.plexTokenField.secureTextEntry = YES;
+    self.plexTokenField.delegate = self;
+    [self.contentView addSubview:self.plexTokenField];
+    yOffset += 56;
+
+    self.plexTargetButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    self.plexTargetButton.frame = CGRectMake(padding, yOffset, self.view.bounds.size.width - 2 * padding, 44);
+    [self.plexTargetButton setTitle:@"Pick Target Client" forState:UIControlStateNormal];
+    self.plexTargetButton.titleLabel.font = [UIFont systemFontOfSize:16];
+    [self.plexTargetButton setTitleColor:[theme accentColor] forState:UIControlStateNormal];
+    [self.plexTargetButton addTarget:self action:@selector(plexPickTargetTapped) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView addSubview:self.plexTargetButton];
+    yOffset += 50;
+
+    self.plexTestButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    self.plexTestButton.frame = CGRectMake(padding, yOffset, self.view.bounds.size.width - 2 * padding, 44);
+    [self.plexTestButton setTitle:@"Test Plex" forState:UIControlStateNormal];
+    [self.plexTestButton setTitleColor:[theme accentColor] forState:UIControlStateNormal];
+    self.plexTestButton.titleLabel.font = [UIFont systemFontOfSize:16];
+    [self.plexTestButton addTarget:self action:@selector(plexTestTapped) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView addSubview:self.plexTestButton];
+    yOffset += 50;
+
+    self.plexStatusLabel = [[UILabel alloc] initWithFrame:CGRectMake(padding, yOffset, self.view.bounds.size.width - 2 * padding, 40)];
+    self.plexStatusLabel.numberOfLines = 0;
+    self.plexStatusLabel.font = [UIFont systemFontOfSize:13];
+    self.plexStatusLabel.textColor = [theme secondaryTextColor];
+    [self.contentView addSubview:self.plexStatusLabel];
+    yOffset += 50;
+    // --- end Plex section ---
+
     self.saveButton = [UIButton buttonWithType:UIButtonTypeSystem];
     self.saveButton.frame = CGRectMake(padding, yOffset, self.view.bounds.size.width - 2 * padding, 50);
     [self.saveButton setTitle:@"Save & Continue" forState:UIControlStateNormal];
@@ -193,6 +283,15 @@
         self.accessTokenField.text = client.accessToken;
     }
     self.batteryReportingSwitch.on = client.batteryReportingEnabled;
+
+    NSUserDefaults *d = [NSUserDefaults standardUserDefaults];
+    self.plexEnabledSwitch.on    = [d boolForKey:@"PlexEnabled"];
+    self.plexServerURLField.text = [d stringForKey:@"PlexServerURL"];
+    self.plexTokenField.text     = [d stringForKey:@"PlexToken"];
+    NSString *targetName = [d stringForKey:@"PlexTargetClientName"];
+    if (targetName.length > 0) {
+        [self.plexTargetButton setTitle:[NSString stringWithFormat:@"Target: %@", targetName] forState:UIControlStateNormal];
+    }
 }
 
 - (void)testConnectionTapped {
@@ -244,6 +343,17 @@
     // Save battery reporting setting
     [HAAPIClient sharedClient].batteryReportingEnabled = self.batteryReportingSwitch.on;
 
+    // Save Plex settings
+    NSUserDefaults *d = [NSUserDefaults standardUserDefaults];
+    [d setBool:self.plexEnabledSwitch.on forKey:@"PlexEnabled"];
+    NSString *plexURL   = [self.plexServerURLField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSString *plexToken = [self.plexTokenField.text     stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    [d setObject:plexURL   forKey:@"PlexServerURL"];
+    [d setObject:plexToken forKey:@"PlexToken"];
+    [d synchronize];
+    [[HBPlexClient sharedClient] reloadFromDefaults];
+    [[NSNotificationCenter defaultCenter] postNotificationName:PlexSettingsChangedNotification object:nil];
+
     if (self.isInitialSetup) {
         HBDashboardViewController *dashboardVC = [[HBDashboardViewController alloc] init];
         UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:dashboardVC];
@@ -293,6 +403,89 @@
 - (void)keyboardWillHide:(NSNotification *)notification {
     self.scrollView.contentInset = UIEdgeInsetsZero;
     self.scrollView.scrollIndicatorInsets = UIEdgeInsetsZero;
+}
+
+#pragma mark - Plex
+
+- (void)plexTestTapped {
+    [self dismissKeyboard];
+    NSString *url   = [self.plexServerURLField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSString *token = [self.plexTokenField.text     stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    if (url.length == 0 || token.length == 0) {
+        self.plexStatusLabel.text = @"Enter Plex URL and token";
+        self.plexStatusLabel.textColor = [UIColor redColor];
+        return;
+    }
+    NSUserDefaults *d = [NSUserDefaults standardUserDefaults];
+    [d setObject:url   forKey:@"PlexServerURL"];
+    [d setObject:token forKey:@"PlexToken"];
+    [d synchronize];
+    [[HBPlexClient sharedClient] reloadFromDefaults];
+
+    self.plexStatusLabel.text = @"Testing Plex...";
+    self.plexStatusLabel.textColor = [UIColor grayColor];
+    [[HBPlexClient sharedClient] fetchSectionsWithCompletion:^(NSArray *sections, NSError *error) {
+        if (error || sections == nil) {
+            self.plexStatusLabel.text = [NSString stringWithFormat:@"Plex failed: %@", error.localizedDescription ?: @"no response"];
+            self.plexStatusLabel.textColor = [UIColor redColor];
+        } else {
+            self.plexStatusLabel.text = [NSString stringWithFormat:@"Plex OK \u2014 %lu libraries", (unsigned long)sections.count];
+            self.plexStatusLabel.textColor = [UIColor colorWithRed:0.0 green:0.7 blue:0.0 alpha:1.0];
+        }
+    }];
+}
+
+- (void)plexPickTargetTapped {
+    [self dismissKeyboard];
+    NSString *url   = [self.plexServerURLField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSString *token = [self.plexTokenField.text     stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    if (url.length == 0 || token.length == 0) {
+        self.plexStatusLabel.text = @"Enter Plex URL and token first";
+        self.plexStatusLabel.textColor = [UIColor redColor];
+        return;
+    }
+    NSUserDefaults *d = [NSUserDefaults standardUserDefaults];
+    [d setObject:url   forKey:@"PlexServerURL"];
+    [d setObject:token forKey:@"PlexToken"];
+    [d synchronize];
+    [[HBPlexClient sharedClient] reloadFromDefaults];
+
+    self.plexStatusLabel.text = @"Loading clients...";
+    [[HBPlexClient sharedClient] fetchAvailableTargetsWithCompletion:^(NSArray<HBPlexTarget *> *targets, NSError *error) {
+        if (error || targets == nil) {
+            self.plexStatusLabel.text = [NSString stringWithFormat:@"No clients: %@", error.localizedDescription ?: @"unreachable"];
+            self.plexStatusLabel.textColor = [UIColor redColor];
+            return;
+        }
+        if (targets.count == 0) {
+            self.plexStatusLabel.text = @"No Plex clients on network";
+            self.plexStatusLabel.textColor = [UIColor redColor];
+            return;
+        }
+        UIAlertController *sheet = [UIAlertController alertControllerWithTitle:@"Pick Target Client"
+                                                                       message:nil
+                                                                preferredStyle:UIAlertControllerStyleActionSheet];
+        for (HBPlexTarget *t in targets) {
+            NSString *title = [NSString stringWithFormat:@"%@ (%@)", t.name ?: @"Client", t.product ?: @"?"];
+            HBPlexTarget *captured = t;
+            [sheet addAction:[UIAlertAction actionWithTitle:title style:UIAlertActionStyleDefault handler:^(UIAlertAction *a) {
+                NSUserDefaults *d2 = [NSUserDefaults standardUserDefaults];
+                [d2 setObject:captured.name              ?: @"" forKey:@"PlexTargetClientName"];
+                [d2 setObject:captured.host              ?: @"" forKey:@"PlexTargetClientIP"];
+                [d2 setObject:@(captured.port)                forKey:@"PlexTargetClientPort"];
+                [d2 setObject:captured.machineIdentifier ?: @"" forKey:@"PlexTargetClientMachineId"];
+                [d2 synchronize];
+                [[HBPlexClient sharedClient] reloadFromDefaults];
+                [self.plexTargetButton setTitle:[NSString stringWithFormat:@"Target: %@", captured.name] forState:UIControlStateNormal];
+            }]];
+        }
+        [sheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+        if (sheet.popoverPresentationController) {
+            sheet.popoverPresentationController.sourceView = self.plexTargetButton;
+            sheet.popoverPresentationController.sourceRect = self.plexTargetButton.bounds;
+        }
+        [self presentViewController:sheet animated:YES completion:nil];
+    }];
 }
 
 @end

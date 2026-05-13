@@ -8,6 +8,8 @@
 #import "HBLightToggleCell.h"
 #import "HBIconView.h"
 #import "HBActionButton.h"
+#import "HBPlexClient.h"
+#import "HBPlexViewController.h"
 #import <objc/runtime.h>
 
 @interface HBDashboardViewController () <UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, HBLightToggleCellDelegate, UITableViewDataSource, UITableViewDelegate>
@@ -17,6 +19,7 @@
 @property (nonatomic, strong) UIButton *homeButton;
 @property (nonatomic, strong) UICollectionView *roomsCollectionView;
 @property (nonatomic, strong) UIButton *settingsButton;
+@property (nonatomic, strong) UIButton *plexButton;
 @property (nonatomic, strong) UIButton *addRoomButton;
 
 // Track if Home is selected
@@ -138,6 +141,12 @@ static const CGFloat kRoomTileSize = 90.0;
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(connectionStatusChanged:)
                                                  name:HAAPIClientConnectionStatusChangedNotification
+                                               object:nil];
+
+    // Listen for Plex enable/disable changes — rebuild bottom nav bar
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(plexSettingsChanged:)
+                                                 name:PlexSettingsChangedNotification
                                                object:nil];
 
     // Setup connection overlay (hidden initially)
@@ -413,6 +422,20 @@ static const NSTimeInterval kIdleTimeoutSeconds = 30.0;
     [self.settingsButton addTarget:self action:@selector(settingsTapped) forControlEvents:UIControlEventTouchUpInside];
     [self.bottomNavBar addSubview:self.settingsButton];
 
+    // Plex button (conditional, between settings and addRoom)
+    BOOL plexEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"PlexEnabled"];
+    if (plexEnabled) {
+        self.plexButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        self.plexButton.translatesAutoresizingMaskIntoConstraints = NO;
+        [self.plexButton setTitle:@"Plex" forState:UIControlStateNormal];
+        [self.plexButton setTitleColor:[theme textColor] forState:UIControlStateNormal];
+        self.plexButton.titleLabel.font = [UIFont boldSystemFontOfSize:14];
+        self.plexButton.backgroundColor = [theme cardBackgroundColor];
+        self.plexButton.layer.cornerRadius = 0;
+        [self.plexButton addTarget:self action:@selector(plexTapped) forControlEvents:UIControlEventTouchUpInside];
+        [self.bottomNavBar addSubview:self.plexButton];
+    }
+
     // Add Room button (+ icon) - right side, square, no rounding
     self.addRoomButton = [UIButton buttonWithType:UIButtonTypeCustom];
     self.addRoomButton.translatesAutoresizingMaskIntoConstraints = NO;
@@ -465,8 +488,8 @@ static const NSTimeInterval kIdleTimeoutSeconds = 30.0;
         [self.roomsCollectionView.topAnchor constraintEqualToAnchor:self.bottomNavBar.topAnchor],
         [self.roomsCollectionView.bottomAnchor constraintEqualToAnchor:self.bottomNavBar.bottomAnchor],
 
-        // Settings button (to the left of + button)
-        [self.settingsButton.trailingAnchor constraintEqualToAnchor:self.addRoomButton.leadingAnchor],
+        // Settings button (to the left of Plex/+ button)
+        [self.settingsButton.trailingAnchor constraintEqualToAnchor:(self.plexButton ? self.plexButton.leadingAnchor : self.addRoomButton.leadingAnchor)],
         [self.settingsButton.topAnchor constraintEqualToAnchor:self.bottomNavBar.topAnchor],
         [self.settingsButton.bottomAnchor constraintEqualToAnchor:self.bottomNavBar.bottomAnchor],
         [self.settingsButton.widthAnchor constraintEqualToConstant:kRoomTileSize],
@@ -477,6 +500,40 @@ static const NSTimeInterval kIdleTimeoutSeconds = 30.0;
         [self.addRoomButton.bottomAnchor constraintEqualToAnchor:self.bottomNavBar.bottomAnchor],
         [self.addRoomButton.widthAnchor constraintEqualToConstant:kRoomTileSize],
     ]];
+
+    if (self.plexButton) {
+        [NSLayoutConstraint activateConstraints:@[
+            [self.plexButton.trailingAnchor constraintEqualToAnchor:self.addRoomButton.leadingAnchor],
+            [self.plexButton.topAnchor      constraintEqualToAnchor:self.bottomNavBar.topAnchor],
+            [self.plexButton.bottomAnchor   constraintEqualToAnchor:self.bottomNavBar.bottomAnchor],
+            [self.plexButton.widthAnchor    constraintEqualToConstant:kRoomTileSize],
+        ]];
+    }
+}
+
+- (void)rebuildBottomNavBar {
+    if (self.bottomNavBar) {
+        [self.bottomNavBar removeFromSuperview];
+        self.bottomNavBar = nil;
+        self.homeButton = nil;
+        self.settingsButton = nil;
+        self.plexButton = nil;
+        self.addRoomButton = nil;
+        self.roomsCollectionView = nil;
+    }
+    [self setupBottomNavBar];
+}
+
+- (void)plexSettingsChanged:(NSNotification *)note {
+    [self rebuildBottomNavBar];
+}
+
+- (void)plexTapped {
+    HBPlexViewController *plexVC = [[HBPlexViewController alloc] init];
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:plexVC];
+    [[HBThemeManager sharedManager] applyThemeToNavigationBar:nav.navigationBar];
+    nav.modalPresentationStyle = UIModalPresentationFullScreen;
+    [self presentViewController:nav animated:YES completion:nil];
 }
 
 #pragma mark - Setup Content

@@ -304,6 +304,15 @@ static const NSTimeInterval kIdleTimeoutSeconds = 30.0;
     self.connectionLabel.textAlignment = NSTextAlignmentCenter;
     [self.connectionOverlay addSubview:self.connectionLabel];
 
+    // Settings button on the overlay so users can configure HA URL
+    UIButton *overlaySettingsBtn = [UIButton buttonWithType:UIButtonTypeSystem];
+    overlaySettingsBtn.translatesAutoresizingMaskIntoConstraints = NO;
+    [overlaySettingsBtn setTitle:@"Settings" forState:UIControlStateNormal];
+    [overlaySettingsBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    overlaySettingsBtn.titleLabel.font = [UIFont systemFontOfSize:16];
+    [overlaySettingsBtn addTarget:self action:@selector(settingsTapped) forControlEvents:UIControlEventTouchUpInside];
+    [self.connectionOverlay addSubview:overlaySettingsBtn];
+
     [self.view addSubview:self.connectionOverlay];
 
     [NSLayoutConstraint activateConstraints:@[
@@ -312,7 +321,9 @@ static const NSTimeInterval kIdleTimeoutSeconds = 30.0;
         [self.connectionLabel.centerXAnchor constraintEqualToAnchor:self.connectionOverlay.centerXAnchor],
         [self.connectionLabel.topAnchor constraintEqualToAnchor:self.connectionSpinner.bottomAnchor constant:20],
         [self.connectionLabel.leadingAnchor constraintEqualToAnchor:self.connectionOverlay.leadingAnchor constant:20],
-        [self.connectionLabel.trailingAnchor constraintEqualToAnchor:self.connectionOverlay.trailingAnchor constant:-20]
+        [self.connectionLabel.trailingAnchor constraintEqualToAnchor:self.connectionOverlay.trailingAnchor constant:-20],
+        [overlaySettingsBtn.centerXAnchor constraintEqualToAnchor:self.connectionOverlay.centerXAnchor],
+        [overlaySettingsBtn.topAnchor constraintEqualToAnchor:self.connectionLabel.bottomAnchor constant:30]
     ]];
 }
 

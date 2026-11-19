@@ -26,6 +26,7 @@ echo ""
 rm -rf Payload
 unzip -o HomeButler.ipa
 
+
 # Kill the app if running
 echo "Stopping HomeButler if running..."
 sshpass -p "$IPAD_PASS" ssh $SSH_OPTS root@$IPAD_IP "killall HomeButler 2>/dev/null || true"

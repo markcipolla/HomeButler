@@ -358,6 +358,8 @@ static const NSTimeInterval kIdleTimeoutSeconds = 30.0;
     self.weatherRefreshTimer = nil;
     [self.entityRefreshTimer invalidate];
     self.entityRefreshTimer = nil;
+    [self.idleTimer invalidate];
+    self.idleTimer = nil;
 }
 
 - (void)viewWillAppear:(BOOL)animated {

@@ -9,6 +9,9 @@ make
 
 APP_PATH=".theos/obj/debug/HomeButler.app"
 
+echo "Fixing armv7 Thumb entry point..."
+python3 fix_armv7_entry.py "$APP_PATH/HomeButler"
+
 echo "Signing with ldid..."
 ldid -Sentitlements.plist "$APP_PATH/HomeButler"
 
